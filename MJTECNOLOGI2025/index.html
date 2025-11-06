@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MJ Tecnologi</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <script src="main.js" defer></script>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d4af37">
+</head>
+<body>
+  <header>
+    <h1>💎 MJ Tecnologi</h1>
+  </header>
+
+  <nav>
+    <button onclick="mostrarAba('produtos')">📦 Produtos</button>
+    <button onclick="mostrarAba('vendas')">💰 Vendas</button>
+    <button onclick="mostrarAba('historico')">📜 Histórico</button>
+    <button onclick="mostrarAba('investimento')">📊 Investimento & Retorno</button>
+    <button onclick="mostrarAba('relatorios')">📑 Relatórios</button>
+  </nav>
+
+  <main>
+    <section id="produtos" class="aba">
+      <h2>Cadastro de Produtos</h2>
+      <input type="text" id="nomeProduto" placeholder="Nome do produto">
+      <input type="number" id="custoProduto" placeholder="Custo (R$)">
+      <input type="number" id="precoProduto" placeholder="Preço de venda (R$)">
+      <input type="file" id="fotoProduto" accept="image/*">
+      <button onclick="adicionarProduto()">Salvar Produto</button>
+      <ul id="listaProdutos"></ul>
+    </section>
+
+    <section id="vendas" class="aba" style="display:none;">
+      <h2>Registrar Venda</h2>
+      <select id="produtoVenda"></select>
+      <input type="number" id="quantidadeVenda" placeholder="Quantidade">
+      <select id="tipoPagamento">
+        <option>À vista</option>
+        <option>A prazo</option>
+      </select>
+      <input type="date" id="vencimentoPrazo" placeholder="Vencimento (se a prazo)">
+      <input type="text" id="nomeCliente" placeholder="Nome do cliente">
+      <button onclick="registrarVenda()">Registrar Venda</button>
+      <ul id="listaVendas"></ul>
+    </section>
+
+    <section id="historico" class="aba" style="display:none;">
+      <h2>Histórico de Vendas</h2>
+      <div id="historicoConteudo"></div>
+    </section>
+
+    <section id="investimento" class="aba" style="display:none;">
+      <h2>Investimento e Retorno</h2>
+      <p>Total investido: <span id="totalInvestido">R$ 0,00</span></p>
+      <p>Total de vendas: <span id="totalVendido">R$ 0,00</span></p>
+      <p>Lucro total: <span id="lucroTotal">R$ 0,00</span></p>
+    </section>
+
+    <section id="relatorios" class="aba" style="display:none;">
+      <h2>Gerar Relatório</h2>
+      <button onclick="gerarRelatorio()">📄 Gerar PDF Local</button>
+      <button onclick="enviarWhatsApp()">💬 Notificar Vencimentos (Hoje)</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>💎 MJ Tecnologi © 2025</p>
+  </footer>
+
+  <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js")
+    .then(() => console.log("✅ Service Worker ativo"))
+    .catch(err => console.error("Erro no SW:", err));
+}
+</script>
+</body>
+</html>

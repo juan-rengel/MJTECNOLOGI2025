@@ -1,0 +1,145 @@
+:root {
+  --fundo: #000000;
+  --card: #111;
+  --texto: #f8f8f8;
+  --dourado: #d4af37;
+  --muted: #aaa;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  transition: 0.3s;
+}
+
+body {
+  background-color: var(--fundo);
+  color: var(--texto);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  background: linear-gradient(90deg, #000, #222);
+  color: var(--dourado);
+  text-align: center;
+  padding: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--dourado);
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  background-color: #111;
+  padding: 0.5rem;
+  gap: 0.5rem;
+}
+
+nav button {
+  background-color: #1a1a1a;
+  color: var(--dourado);
+  border: 1px solid var(--dourado);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+nav button:hover {
+  background-color: var(--dourado);
+  color: #000;
+}
+
+main {
+  flex: 1;
+  padding: 1rem;
+}
+
+.aba {
+  display: none;
+}
+
+.aba.ativa {
+  display: block;
+}
+
+section {
+  background-color: var(--card);
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #000;
+}
+
+h2 {
+  color: var(--dourado);
+  border-bottom: 1px solid var(--dourado);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+input, select, button {
+  width: 100%;
+  margin: 0.4rem 0;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+input, select {
+  background: #222;
+  color: var(--texto);
+}
+
+button {
+  background: var(--dourado);
+  color: #000;
+  font-weight: 600;
+}
+
+button:hover {
+  background: #ffce45;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background-color: #1c1c1c;
+  padding: 0.6rem;
+  border-radius: 6px;
+  margin: 0.3rem 0;
+  color: var(--texto);
+  border: 1px solid #333;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  border-top: 1px solid #222;
+}
+
+@media (max-width: 600px) {
+  nav button {
+    flex: 1 1 45%;
+  }
+
+  h1 {
+    font-size: 1.2rem;
+  }
+
+  input, button {
+    font-size: 0.9rem;
+  }
+}
