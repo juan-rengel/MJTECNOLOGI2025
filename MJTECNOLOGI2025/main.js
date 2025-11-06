@@ -1,18 +1,18 @@
 // ==========================
-// MJ TECNOLOGI 2025 - main.js (completo)
+// MJ TECNOLOGI 2025 - main.js (completo, com WhatsApp e lembrete automático)
 // ==========================
 
-// dados locais
+// Dados globais (expostos para o HTML)
 window.produtos = JSON.parse(localStorage.getItem("produtos")) || [];
 window.vendas = JSON.parse(localStorage.getItem("vendas")) || [];
 
-// ---------- persistência ----------
+// ---------- Persistência ----------
 function salvarDados() {
   localStorage.setItem("produtos", JSON.stringify(window.produtos));
   localStorage.setItem("vendas", JSON.stringify(window.vendas));
 }
 
-// ---------- utilitários ----------
+// ---------- Utilitários ----------
 function limparCamposProduto() {
   const ids = ["nomeProduto", "precoProduto", "custoProduto", "estoqueProduto", "fotoProduto"];
   ids.forEach(id => {
@@ -217,7 +217,6 @@ function editarProduto(id) {
 function excluirProduto(id) {
   if (!confirm("Tem certeza que deseja excluir este produto?")) return;
 
-  // Se houver vendas vinculadas ao produto, você pode optar por bloquear exclusão ou remover. Aqui removemos o produto.
   window.produtos = window.produtos.filter(p => p.id !== id);
   salvarDados();
   listarProdutos();
@@ -266,6 +265,7 @@ function registrarVenda() {
     total,
     tipo,
     cliente,
+    whatsapp,
     data: dataVenda.toLocaleDateString('pt-BR'),
     vencimento: vencimentoDate ? vencimentoDate.toLocaleDateString('pt-BR') : null,
     pago: tipo === "vista" ? true : false
@@ -281,7 +281,7 @@ function registrarVenda() {
   atualizarProdutosDropdown();
 
   // limpar campos venda
-  const ids = ["qtdVenda", "diasPrazo", "clienteVenda", "produtoVenda"];
+  const ids = ["qtdVenda", "diasPrazo", "clienteVenda", "produtoVenda", "whatsVenda"];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = "";
@@ -315,6 +315,7 @@ function listarVendas() {
     li.innerHTML = `
       <strong style="color:#00b7ff;font-size:1.05em;">${v.produto}</strong>
       <div class="muted" style="margin:6px 0;">Cliente: ${v.cliente} • Quantidade: ${v.qtd} • Total: R$${v.total.toFixed(2)}</div>
+      ${v.whatsapp ? `<div style="margin:4px 0;">📱 WhatsApp: ${v.whatsapp}</div>` : `<div style="margin:4px 0;opacity:0.8;">📱 WhatsApp: Não informado</div>`}
       <div style="margin:4px 0;">Tipo: ${v.tipo === "prazo" ? "A Prazo" : "À Vista"} ${v.vencimento ? `• Vencimento: ${v.vencimento}` : ""}</div>
       <div style="margin:6px 0;">Status: ${status}</div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
@@ -333,7 +334,6 @@ function editarVenda(id) {
   const venda = window.vendas.find(v => v.id === id);
   if (!venda) return;
 
-  // Encontrar produto atual para recalculo
   const produto = window.produtos.find(p => p.id === venda.produtoId);
 
   const novoQtd = parseInt(prompt("Nova quantidade:", venda.qtd));
@@ -366,7 +366,6 @@ function editarVenda(id) {
     venda.produto = produto.nome;
     venda.produtoId = produto.id;
   } else {
-    // fallback: ajusta proporcionalmente
     venda.total = (venda.total / venda.qtd) * novoQtd;
   }
 
@@ -374,7 +373,7 @@ function editarVenda(id) {
   venda.tipo = novoTipo;
   venda.cliente = novoCliente;
   venda.vencimento = novoVenc;
-  venda.pago = novoTipo === "vista" ? true : venda.pago; // vistas são pagas por padrão
+  venda.pago = novoTipo === "vista" ? true : venda.pago;
 
   salvarDados();
   listarVendas();
@@ -386,7 +385,6 @@ function editarVenda(id) {
 function excluirVenda(id) {
   if (!confirm("Tem certeza que deseja excluir esta venda?")) return;
 
-  // ao excluir a venda, opcionalmente restaurar o estoque
   const venda = window.vendas.find(v => v.id === id);
   if (venda) {
     const produto = window.produtos.find(p => p.id === venda.produtoId);
@@ -411,19 +409,51 @@ function marcarComoPago(id) {
   alert("Venda marcada como paga!");
 }
 
-// envia mensagem para vendedor/cliente sobre uma venda específica
 function enviarWhatsAppVenda(id) {
   const venda = window.vendas.find(v => v.id === id);
   if (!venda) return;
   const msg = encodeURIComponent(`Olá ${venda.cliente}, lembrando sobre a venda: ${venda.produto} (${venda.qtd}x) - Total R$${venda.total.toFixed(2)}${venda.vencimento ? ` - Vencimento: ${venda.vencimento}` : ""}`);
-  const url = `https://wa.me/?text=${msg}`;
-  window.open(url, "_blank");
+  // Se existir whatsapp no cadastro da venda, usa-o; senão abre WhatsApp Web genérico
+  if (venda.whatsapp) {
+    const numero = venda.whatsapp.replace(/\D/g, "");
+    const url = `https://wa.me/${numero}?text=${msg}`;
+    window.open(url, "_blank");
+  } else {
+    const url = `https://wa.me/?text=${msg}`;
+    window.open(url, "_blank");
+  }
+}
+
+// ---------- VENCIMENTOS (WhatsApp) ----------
+function verificarVencimentos() {
+  const hoje = hojeStr();
+  const vencendo = (window.vendas || []).filter(v => v.vencimento === hoje && !v.pago && v.tipo === "prazo");
+
+  if (vencendo.length === 0) {
+    // comentar se quiser silêncio: alert("Nenhum cliente com vencimento hoje.");
+    return;
+  }
+
+  // Para cada venda com vencimento hoje, abrir WhatsApp no número informado
+  vencendo.forEach(v => {
+    const msg = encodeURIComponent(
+      `Olá ${v.cliente}, lembrando que sua compra de ${v.produto} (${v.qtd}x) no valor de R$${v.total.toFixed(2)} vence hoje.\n\nPix: 929931135510 (Mercado Pago).`
+    );
+
+    if (v.whatsapp) {
+      const numero = v.whatsapp.replace(/\D/g, "");
+      const url = `https://wa.me/${numero}?text=${msg}`;
+      window.open(url, "_blank");
+    } else {
+      // se não houver número, apenas mostra alert (ou pode enviar genérico)
+      alert(`Cliente ${v.cliente} não possui número de WhatsApp cadastrado.`);
+    }
+  });
 }
 
 // ---------- RELATÓRIO ----------
 function gerarRelatorio() {
   const totalVendas = (window.vendas || []).reduce((acc, v) => acc + (v.total || 0), 0);
-  // custo total com base no estoque atual (se preferir, pode calcular custo das vendas em vez do estoque)
   const custoTotal = (window.produtos || []).reduce((acc, p) => acc + ((p.custo || 0) * (p.estoque || 0)), 0);
   const lucro = totalVendas - custoTotal;
   const retorno = custoTotal > 0 ? ((lucro / custoTotal) * 100).toFixed(2) : "0.00";
@@ -437,24 +467,6 @@ function gerarRelatorio() {
       <strong>Retorno (%):</strong> ${retorno}%
     `;
   }
-}
-
-// ---------- VENCIMENTOS (WhatsApp) ----------
-function verificarVencimentos() {
-  const hoje = hojeStr();
-  const vencendo = (window.vendas || []).filter(v => v.vencimento === hoje && !v.pago);
-
-  if (vencendo.length === 0) {
-    alert("Nenhum cliente com vencimento hoje.");
-    return;
-  }
-
-  // abrir mensagens no WhatsApp (uma por venda)
-  vencendo.forEach(v => {
-    const msg = encodeURIComponent(`Olá ${v.cliente}, lembrando que sua compra (${v.produto}) vence hoje. Pix: 929931135510 (Mercado Pago).`);
-    const url = `https://wa.me/?text=${msg}`;
-    window.open(url, "_blank");
-  });
 }
 
 // ---------- EXPORT / IMPORT / LIMPEZA ----------
@@ -506,11 +518,7 @@ function limparDados() {
 
 // ---------- INICIALIZAÇÃO ----------
 document.addEventListener("DOMContentLoaded", () => {
-  // exposição global para HTML/scripts que usam diretamente
-  window.produtos = window.produtos || [];
-  window.vendas = window.vendas || [];
-
-  // Funções públicas (caso algum HTML chame sem prefixo)
+  // expor as funções globalmente (para chamadas diretas do HTML)
   window.cadastrarProduto = cadastrarProduto;
   window.listarProdutos = listarProdutos;
   window.atualizarProdutosDropdown = atualizarProdutosDropdown;
@@ -528,8 +536,14 @@ document.addEventListener("DOMContentLoaded", () => {
   window.editarVenda = editarVenda;
   window.excluirVenda = excluirVenda;
 
-  // inicializações UI
+  // Inicializa UI
   listarProdutos();
   listarVendas();
   atualizarProdutosDropdown();
+
+  // ------------- LEMBRETE AUTOMÁTICO -------------
+  // Executa a verificação de vencimentos automaticamente ao abrir o app
+  // OBS: essa rotina abre janelas/abas do WhatsApp para cada cliente com vencimento hoje.
+  // Se preferir comentar a linha abaixo, remova ou comente a chamada.
+  verificarVencimentos();
 });
