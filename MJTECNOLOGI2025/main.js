@@ -232,6 +232,7 @@ function registrarVenda() {
   const tipoEl = document.querySelector('input[name="tipoVenda"]:checked');
   const tipo = tipoEl ? tipoEl.value : "vista";
   const cliente = (document.getElementById("clienteVenda")?.value || "Cliente").trim();
+  const whatsapp = (document.getElementById("whatsVenda")?.value || "").trim();
   const diasPrazo = parseInt(document.getElementById("diasPrazo")?.value) || 0;
 
   if (isNaN(produtoId) || !produtoId) {
