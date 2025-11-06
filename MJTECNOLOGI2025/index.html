@@ -1,82 +1,444 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MJ Tecnologi</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json" />
-  <script src="main.js" defer></script>
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#d4af37">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MJ TECNOLOGI 2025</title>
+
+  <!-- Estilos: tema dark / light com as mesmas variáveis que você usou -->
+  <style>
+    :root {
+      /* tema escuro (padrão) */
+      --bg: #0a0f1f;          /* fundo geral */
+      --card: #141c2f;        /* cards / painéis */
+      --text: #e2e8f0;        /* texto principal */
+      --muted: #9aa7bf;       /* texto secundário */
+      --accent: #00b7ff;      /* cor de destaque / botões */
+      --success: #22c55e;
+      --danger: #ef4444;
+      --glass: rgba(255,255,255,0.03);
+      --radius: 12px;
+      --shadow: 0 6px 18px rgba(2,6,23,0.6);
+    }
+
+    /* tema claro (alternado via .light no body) */
+    body.light {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #0b1220;
+      --muted: #566174;
+      --accent: #006fbf;
+      --glass: rgba(0,0,0,0.03);
+      --shadow: 0 6px 18px rgba(11,18,32,0.06);
+    }
+
+    /* reset e base */
+    * { box-sizing: border-box; }
+    html,body { height:100%; }
+    body{
+      margin:0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg), rgba(0,0,0,0.02));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding-bottom:40px;
+    }
+
+    header.appbar{
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      backdrop-filter: blur(6px);
+      box-shadow: var(--shadow);
+      padding:18px 20px;
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;
+      top:0;
+      z-index:30;
+    }
+
+    .brand {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .brand .logo {
+      width:44px;
+      height:44px;
+      border-radius:10px;
+      background:linear-gradient(135deg,var(--accent), #66e0ff);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-weight:700;
+      box-shadow: 0 6px 18px rgba(3,7,18,0.4);
+      font-size:18px;
+    }
+    .brand h1 {
+      margin:0;
+      font-size:18px;
+      letter-spacing:0.6px;
+    }
+    .brand p { margin:0; font-size:12px; color:var(--muted); }
+
+    /* barra de ações */
+    .actions {
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .btn {
+      border: none;
+      background: var(--accent);
+      color: white;
+      padding:8px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+    }
+    .btn.ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .btn.small { padding:6px 8px; font-size:14px; border-radius:8px; }
+
+    main {
+      max-width:1100px;
+      margin:22px auto;
+      padding:0 18px;
+    }
+
+    /* layout das abas */
+    nav.tabs {
+      display:flex;
+      gap:10px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    nav.tabs button.tab {
+      padding:10px 14px;
+      border-radius:10px;
+      border:none;
+      background:var(--glass);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:600;
+    }
+    nav.tabs button.tab.active {
+      background:linear-gradient(90deg,var(--accent), #66e0ff);
+      color:white;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    /* grid principal */
+    .grid {
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:18px;
+    }
+    @media(min-width:900px){
+      .grid { grid-template-columns: 1fr 360px; align-items:start; }
+    }
+
+    /* card */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow);
+    }
+
+    h2 { margin:0 0 10px 0; font-size:18px; }
+    label { display:block; font-size:13px; color:var(--muted); margin-top:10px; }
+    input[type="text"], input[type="number"], select, input[type="file"] {
+      width:100%;
+      padding:10px;
+      margin-top:6px;
+      border-radius:10px;
+      border: 1px solid rgba(0,0,0,0.06);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      color:var(--text);
+      outline:none;
+    }
+
+    .stack { display:flex; flex-direction:column; gap:8px; }
+    .row { display:flex; gap:10px; }
+    .row .col { flex:1; }
+
+    ul { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+    li.item {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      padding:10px;
+      border-radius:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+      border:1px solid rgba(255,255,255,0.02);
+    }
+    .item .thumb {
+      width:64px;
+      height:64px;
+      border-radius:8px;
+      background:#0b1220;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex-shrink:0;
+    }
+    .item .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+
+    .meta { flex:1; }
+    .meta .title { font-weight:700; }
+    .meta .sub { color:var(--muted); font-size:13px; margin-top:6px; }
+
+    .footer-actions { display:flex; gap:8px; margin-top:12px; }
+    .action { background:var(--success); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; width:100%; font-weight:700; }
+    .action.secondary { background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--text); }
+
+    /* relatório */
+    #resumoRelatorio { padding:14px; border-radius:10px; background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); border:1px solid rgba(255,255,255,0.02); }
+
+    /* helpers */
+    .muted { color:var(--muted); font-size:13px; }
+    .text-right { text-align:right; }
+    .center { text-align:center; }
+
+    /* small screens spacing */
+    @media(max-width:560px){
+      .brand h1 { font-size:16px; }
+      .brand p { display:none; }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>💎 MJ Tecnologi</h1>
+
+  <header class="appbar">
+    <div class="brand">
+      <div class="logo">MJ</div>
+      <div>
+        <h1>MJ TECNOLOGI</h1>
+        <p>Controle de Vendas e Estoque</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn small" id="themeToggle" title="Alternar tema">Tema</button>
+      <button class="btn ghost small" onclick="gerarRelatorio()">Relatório</button>
+    </div>
   </header>
 
-  <nav>
-    <button onclick="mostrarAba('produtos')">📦 Produtos</button>
-    <button onclick="mostrarAba('vendas')">💰 Vendas</button>
-    <button onclick="mostrarAba('historico')">📜 Histórico</button>
-    <button onclick="mostrarAba('investimento')">📊 Investimento & Retorno</button>
-    <button onclick="mostrarAba('relatorios')">📑 Relatórios</button>
-  </nav>
-
   <main>
-    <section id="produtos" class="aba">
-      <h2>Cadastro de Produtos</h2>
-      <input type="text" id="nomeProduto" placeholder="Nome do produto">
-      <input type="number" id="custoProduto" placeholder="Custo (R$)">
-      <input type="number" id="precoProduto" placeholder="Preço de venda (R$)">
-      <input type="file" id="fotoProduto" accept="image/*">
-      <button onclick="adicionarProduto()">Salvar Produto</button>
-      <ul id="listaProdutos"></ul>
-    </section>
+    <nav class="tabs">
+      <button class="tab active" onclick="mostrarAba('produtos', this)">📦 Produtos</button>
+      <button class="tab" onclick="mostrarAba('vendas', this)">💰 Vendas</button>
+      <button class="tab" onclick="mostrarAba('relatorio', this)">📊 Relatório</button>
+    </nav>
 
-    <section id="vendas" class="aba" style="display:none;">
-      <h2>Registrar Venda</h2>
-      <select id="produtoVenda"></select>
-      <input type="number" id="quantidadeVenda" placeholder="Quantidade">
-      <select id="tipoPagamento">
-        <option>À vista</option>
-        <option>A prazo</option>
-      </select>
-      <input type="date" id="vencimentoPrazo" placeholder="Vencimento (se a prazo)">
-      <input type="text" id="nomeCliente" placeholder="Nome do cliente">
-      <button onclick="registrarVenda()">Registrar Venda</button>
-      <ul id="listaVendas"></ul>
-    </section>
+    <div class="grid">
+      <!-- coluna principal -->
+      <div>
+        <section id="produtos" class="card ativa">
+          <h2>Cadastro de Produto</h2>
+          <div class="stack">
+            <label>Nome do Produto</label>
+            <input id="nomeProduto" type="text" placeholder="Ex: Celular Xiaomi">
 
-    <section id="historico" class="aba" style="display:none;">
-      <h2>Histórico de Vendas</h2>
-      <div id="historicoConteudo"></div>
-    </section>
+            <div class="row">
+              <div class="col">
+                <label>Preço de Venda (R$)</label>
+                <input id="precoProduto" type="number" step="0.01">
+              </div>
+              <div class="col">
+                <label>Custo (R$)</label>
+                <input id="custoProduto" type="number" step="0.01">
+              </div>
+            </div>
 
-    <section id="investimento" class="aba" style="display:none;">
-      <h2>Investimento e Retorno</h2>
-      <p>Total investido: <span id="totalInvestido">R$ 0,00</span></p>
-      <p>Total de vendas: <span id="totalVendido">R$ 0,00</span></p>
-      <p>Lucro total: <span id="lucroTotal">R$ 0,00</span></p>
-    </section>
+            <div class="row">
+              <div class="col">
+                <label>Estoque Inicial</label>
+                <input id="estoqueProduto" type="number">
+              </div>
+              <div class="col">
+                <label>Foto do Produto</label>
+                <input id="fotoProduto" type="file" accept="image/*">
+              </div>
+            </div>
 
-    <section id="relatorios" class="aba" style="display:none;">
-      <h2>Gerar Relatório</h2>
-      <button onclick="gerarRelatorio()">📄 Gerar PDF Local</button>
-      <button onclick="enviarWhatsApp()">💬 Notificar Vencimentos (Hoje)</button>
-    </section>
+            <div class="row">
+              <button class="btn action" onclick="cadastrarProduto()">Adicionar Produto</button>
+            </div>
+
+            <h3 style="margin-top:8px">Lista de Produtos</h3>
+            <ul id="listaProdutos"></ul>
+          </div>
+        </section>
+
+        <section id="vendas" class="card" style="display:none; margin-top:18px;">
+          <h2>Registrar Venda</h2>
+          <div class="stack">
+            <label>Produto</label>
+            <select id="produtoVenda">
+              <option value="">Selecione...</option>
+            </select>
+
+            <div class="row">
+              <div class="col">
+                <label>Quantidade</label>
+                <input id="qtdVenda" type="number">
+              </div>
+              <div class="col">
+                <label>Dias de Prazo (se aplicável)</label>
+                <input id="diasPrazo" type="number" placeholder="Ex: 30">
+              </div>
+            </div>
+
+            <label>Tipo de Venda</label>
+            <div style="display:flex;gap:10px;">
+              <label class="muted"><input type="radio" name="tipoVenda" value="vista" checked> À Vista</label>
+              <label class="muted"><input type="radio" name="tipoVenda" value="prazo"> A Prazo</label>
+            </div>
+
+            <label>Cliente (opcional)</label>
+            <input id="clienteVenda" type="text" placeholder="Nome do cliente">
+
+            <div class="row" style="margin-top:8px;">
+              <button class="btn action" onclick="registrarVenda()">Registrar Venda</button>
+              <button class="btn ghost" onclick="verificarVencimentos()">Vencimentos</button>
+            </div>
+
+            <h3 style="margin-top:12px">Histórico de Vendas</h3>
+            <ul id="listaVendas"></ul>
+          </div>
+        </section>
+      </div>
+
+      <!-- coluna lateral -->
+      <aside>
+        <div class="card">
+          <h2 class="center">Resumo</h2>
+          <div id="resumoRelatorio">
+            <div class="center muted">Clique em "Gerar Relatório" para ver os números.</div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <button class="btn action" onclick="gerarRelatorio()">Gerar Relatório</button>
+            <button class="btn ghost" style="margin-top:8px;" onclick="salvarDados()">Salvar Agora</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px;">
+          <h3>Exportar</h3>
+          <p class="muted">Exportar lista atual de produtos e vendas (simples).</p>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <button class="btn small" onclick="exportarJSON()">Exportar JSON</button>
+            <button class="btn small ghost" onclick="limparDados()">Limpar</button>
+          </div>
+        </div>
+      </aside>
+    </div>
   </main>
 
-  <footer>
-    <p>💎 MJ Tecnologi © 2025</p>
-  </footer>
+  <!-- seu main.js já deve estar no mesmo diretório -->
+  <script src="main.js"></script>
 
+  <!-- script adicional: alternar tema, alternar abas e utilitários (atualiza dropdown etc) -->
   <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js")
-    .then(() => console.log("✅ Service Worker ativo"))
-    .catch(err => console.error("Erro no SW:", err));
-}
-</script>
+    // Alternar abas (mantém compatibilidade com mostrarAba do main.js)
+    function mostrarAba(id, btn) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      document.querySelectorAll('section.card').forEach(s => {
+        s.style.display = 'none';
+        s.classList.remove('ativa');
+      });
+      const sec = document.getElementById(id);
+      if (sec) {
+        sec.style.display = 'block';
+        sec.classList.add('ativa');
+      }
+    }
+
+    // Tema: salva preferência no localStorage
+    const themeToggle = document.getElementById('themeToggle');
+    function aplicarTema(tema) {
+      if (tema === 'light') document.body.classList.add('light');
+      else document.body.classList.remove('light');
+      localStorage.setItem('mj_tema', tema);
+      themeToggle.textContent = tema === 'light' ? '🌙 Escuro' : '☀️ Claro';
+    }
+    // inicializar tema
+    const temaSalvo = localStorage.getItem('mj_tema') || 'dark';
+    aplicarTema(temaSalvo === 'light' ? 'light' : 'dark');
+    themeToggle.addEventListener('click', () => {
+      const novo = document.body.classList.contains('light') ? 'dark' : 'light';
+      aplicarTema(novo);
+    });
+
+    // Funções utilitárias usadas na UI
+    function atualizarProdutosDropdown() {
+      const select = document.getElementById("produtoVenda");
+      if (!select) return;
+      select.innerHTML = '<option value="">Selecione...</option>';
+      (window.produtos || []).forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.nome;
+        select.appendChild(opt);
+      });
+    }
+
+    // Exportar JSON simples
+    function exportarJSON() {
+      const data = {
+        produtos: window.produtos || [],
+        vendas: window.vendas || []
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'mj-dados.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function limparDados() {
+      if (!confirm('Limpar todos os dados locais (produtos e vendas)?')) return;
+      localStorage.removeItem('produtos');
+      localStorage.removeItem('vendas');
+      window.produtos = [];
+      window.vendas = [];
+      listarProdutos();
+      listarVendas();
+      atualizarProdutosDropdown();
+      alert('Dados limpos.');
+    }
+
+    // Garantir chamadas iniciais (main.js define listarProdutos/listarVendas)
+    window.addEventListener('load', () => {
+      // se main.js carregou e expôs as variáveis, atualiza UI
+      if (typeof listarProdutos === 'function') listarProdutos();
+      if (typeof listarVendas === 'function') listarVendas();
+      if (typeof atualizarProdutosDropdown === 'function') atualizarProdutosDropdown();
+    });
+
+    // Se main.js sobrescrever salvarDados, manter o hook para dropdown (compatibilidade)
+    (function patchSalvar() {
+      if (typeof salvarDados !== 'function') return;
+      const original = salvarDados;
+      salvarDados = function() {
+        original();
+        atualizarProdutosDropdown();
+      };
+    })();
+  </script>
 </body>
 </html>
