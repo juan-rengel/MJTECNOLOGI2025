@@ -34,11 +34,15 @@ function atualizarProdutos() {
 
   produtos.forEach((p, i) => {
     const li = document.createElement("li");
+    let estoqueClass = parseInt(p.estoque) < 3 ? "style='color:red; font-weight:bold;'" : "";
     li.innerHTML = `
       <strong>${p.nome}</strong><br>
-      Preço: R$ ${p.preco.toFixed(2)} | Custo: R$ ${p.custo.toFixed(2)} | Estoque: ${p.estoque}
+      Preço: R$ ${p.preco.toFixed(2)} | Custo: R$ ${p.custo.toFixed(2)} |
+      <span ${estoqueClass}>Estoque: ${p.estoque}</span>
       ${p.foto ? `<br><img src="${p.foto}" width="60">` : ""}
-      <br><button class="excluir-btn" onclick="excluirProduto(${i})">Excluir</button>
+      <br>
+      <button class="excluir-btn" onclick="excluirProduto(${i})">Excluir</button>
+      <button class="excluir-btn" style="background:orange; margin-left:5px;" onclick="editarProduto(${i})">Editar</button>
     `;
     lista.appendChild(li);
 
@@ -84,6 +88,69 @@ function cadastrarProduto() {
   document.getElementById("custoProduto").value = "";
   document.getElementById("estoqueProduto").value = "";
   fotoInput.value = "";
+}
+
+// ----- Editar produto -----
+function editarProduto(i) {
+  const p = produtos[i];
+  document.getElementById("nomeProduto").value = p.nome;
+  document.getElementById("precoProduto").value = p.preco;
+  document.getElementById("custoProduto").value = p.custo;
+  document.getElementById("estoqueProduto").value = p.estoque;
+  document.getElementById("fotoProduto").dataset.editIndex = i;
+
+  const botao = document.querySelector("#produtos button[onclick='cadastrarProduto()']");
+  botao.textContent = "💾 Salvar Alterações";
+  botao.onclick = salvarEdicaoProduto;
+}
+
+function salvarEdicaoProduto() {
+  const i = document.getElementById("fotoProduto").dataset.editIndex;
+  if (i === undefined) return;
+
+  const nome = document.getElementById("nomeProduto").value.trim();
+  const preco = parseFloat(document.getElementById("precoProduto").value);
+  const custo = parseFloat(document.getElementById("custoProduto").value);
+  const estoque = parseInt(document.getElementById("estoqueProduto").value);
+  const fotoInput = document.getElementById("fotoProduto");
+
+  if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
+    alert("Preencha todos os campos corretamente!");
+    return;
+  }
+
+  if (fotoInput.files.length > 0) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      produtos[i].foto = e.target.result;
+      atualizarProdutoCampos();
+    };
+    reader.readAsDataURL(fotoInput.files[0]);
+  } else {
+    atualizarProdutoCampos();
+  }
+
+  function atualizarProdutoCampos() {
+    produtos[i].nome = nome;
+    produtos[i].preco = preco;
+    produtos[i].custo = custo;
+    produtos[i].estoque = estoque;
+    salvarDados();
+    atualizarProdutos();
+
+    document.getElementById("nomeProduto").value = "";
+    document.getElementById("precoProduto").value = "";
+    document.getElementById("custoProduto").value = "";
+    document.getElementById("estoqueProduto").value = "";
+    fotoInput.value = "";
+    delete fotoInput.dataset.editIndex;
+
+    const botao = document.querySelector("#produtos button");
+    botao.textContent = "➕ Adicionar Produto";
+    botao.onclick = cadastrarProduto;
+
+    alert("Produto atualizado com sucesso!");
+  }
 }
 
 // ----- Excluir produto -----
@@ -251,9 +318,9 @@ setInterval(() => {
         const msg = `Olá ${v.cliente}! Lembrete: sua compra de ${v.produto} vence hoje.`;
         const link = `https://wa.me/55${v.whats}?text=${encodeURIComponent(msg)}`;
         window.open(link, "_blank");
-        v.pago = true; // evita repetir lembrete
+        v.pago = true;
         salvarDados();
       }
     }
   });
-}, 60000); // verifica a cada 1 min
+}, 60000);

@@ -96,7 +96,6 @@ input, select {
 }
 button {
   background: #2f85f5;
-  
   color: white;
   border: none;
   border-radius: 10px;
@@ -138,7 +137,7 @@ li {
 <!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <!-- Script principal -->
-<script defer src="main.js"></script>
+
 </head>
 
 <body>
@@ -161,7 +160,10 @@ li {
       <input type="number" id="precoProduto" placeholder="Preço de venda">
       <input type="number" id="custoProduto" placeholder="Custo do produto">
       <input type="number" id="estoqueProduto" placeholder="Estoque inicial">
-      <input type="file" id="fotoProduto" accept="image/*">
+
+      <!-- ✅ Campo atualizado: agora aceita câmera e galeria -->
+      <input type="file" id="fotoProduto" accept="image/*" capture="environment">
+
       <button onclick="cadastrarProduto()">➕ Adicionar Produto</button>
     </div>
 
@@ -214,5 +216,6 @@ li {
       <button class="limpar-btn" onclick="limparTudo()">🧹 Limpar Todos os Dados</button>
     </div>
   </section>
+<script defer src="main.js"></script>
 </body>
 </html>
