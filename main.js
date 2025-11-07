@@ -360,3 +360,73 @@ setInterval(() => {
     }
   });
 }, 60000);
+
+
+
+// ====== NOVO RECURSO: SALVAR AUTOMATICAMENTE AO TIRAR FOTO ======
+// ====== NOVO RECURSO: SALVAR AUTOMATICAMENTE AO TIRAR FOTO (VERSÃO CORRIGIDA) ======
+document.addEventListener("DOMContentLoaded", () => {
+  const fotoProdutoInput = document.getElementById("fotoProduto");
+  if (!fotoProdutoInput) return; // input não existe -> nada a fazer
+
+  fotoProdutoInput.addEventListener("change", () => {
+    // Se estivermos em modo edição, não fazer autosave (manter fluxo de edição existente)
+    if (Object.prototype.hasOwnProperty.call(fotoProdutoInput.dataset, "editIndex")) {
+      return;
+    }
+
+    const file = fotoProdutoInput.files && fotoProdutoInput.files[0];
+    if (!file) return;
+
+    const nomeEl = document.getElementById("nomeProduto");
+    const precoEl = document.getElementById("precoProduto");
+    const custoEl = document.getElementById("custoProduto");
+    const estoqueEl = document.getElementById("estoqueProduto");
+    const preview = document.getElementById("previewFoto");
+
+    const nome = nomeEl ? nomeEl.value.trim() : "";
+    const preco = precoEl ? parseFloat(precoEl.value) : NaN;
+    const custo = custoEl ? parseFloat(custoEl.value) : NaN;
+    const estoque = estoqueEl ? parseInt(estoqueEl.value) : NaN;
+
+    if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
+      alert("Preencha os outros campos antes de tirar a foto!");
+      // limpa o input para evitar comportamento confuso depois
+      fotoProdutoInput.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.addEventListener("load", (e) => {
+      const foto = e.target.result;
+
+      // Mostrar preview (se existir o container)
+      if (preview) {
+        preview.innerHTML = `<img src="${foto}" width="80" style="border-radius:10px;margin-top:5px;">`;
+      }
+
+      // Salva produto automaticamente
+      produtos.push({ nome, preco, custo, estoque, foto });
+      salvarDados();
+      atualizarProdutos();
+
+      // Limpa campos (mantém função auxiliar para consistência)
+      if (typeof limparCamposProduto === "function") {
+        limparCamposProduto();
+      } else {
+        // fallback seguro
+        if (nomeEl) nomeEl.value = "";
+        if (precoEl) precoEl.value = "";
+        if (custoEl) custoEl.value = "";
+        if (estoqueEl) estoqueEl.value = "";
+        fotoProdutoInput.value = "";
+        if (preview) preview.innerHTML = "";
+      }
+
+      alert("📸 Produto cadastrado automaticamente com sucesso!");
+    });
+
+    // Inicia leitura (dispara onload quando pronto)
+    reader.readAsDataURL(file);
+  });
+});
