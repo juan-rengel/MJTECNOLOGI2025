@@ -1,445 +1,217 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MJ TECNOLOGI 2025</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MJ Tecnologia 2025</title>
+<link rel="icon" href="logo.png">
 
-  <!-- Estilos: tema dark / light com as mesmas variáveis que você usou -->
-  <style>
-    :root {
-      /* tema escuro (padrão) */
-      --bg: #0a0f1f;          /* fundo geral */
-      --card: #141c2f;        /* cards / painéis */
-      --text: #e2e8f0;        /* texto principal */
-      --muted: #9aa7bf;       /* texto secundário */
-      --accent: #00b7ff;      /* cor de destaque / botões */
-      --success: #22c55e;
-      --danger: #ef4444;
-      --glass: rgba(255,255,255,0.03);
-      --radius: 12px;
-      --shadow: 0 6px 18px rgba(2,6,23,0.6);
-    }
+<!-- ====== ESTILO ====== -->
+<style>
+:root {
+  --bg: #0a0f1f;
+  --card: #141c2f;
+  --text: #e2e8f0;
+  --accent: #007bff;
+}
+body.light {
+  --bg: #f5f6fa;
+  --card: #ffffff;
+  --text: #111;
+}
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  margin: 0;
+  transition: 0.3s;
+}
+header {
+  background: var(--card);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+header h1 {
+  font-size: 1.2rem;
+  color: var(--accent);
+  margin: 0;
+}
+.theme-toggle {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+nav {
+  display: flex;
+  justify-content: space-around;
+  background: var(--card);
+  padding: 10px;
+}
+nav button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+nav button:hover {
+  background: #0056c7;
+}
+section {
+  display: none;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+section.ativa {
+  display: block;
+}
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+h2 {
+  color: var(--accent);
+  margin-top: 0;
+}
+input, select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+button:hover {
+  background: #0056c7;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+li {
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.excluir-btn {
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 8px;
+  margin-top: 6px;
+  cursor: pointer;
+}
+.excluir-btn:hover {
+  background: darkred;
+}
+.limpar-btn {
+  background: #dc3545;
+  margin-top: 10px;
+}
+</style>
 
-    /* tema claro (alternado via .light no body) */
-    body.light {
-      --bg: #f6f8fb;
-      --card: #ffffff;
-      --text: #0b1220;
-      --muted: #617394;
-      --accent: #006fbf;
-      --glass: rgba(0, 0, 0, 0.007);
-      --shadow: 0 6px 18px rgba(11,18,32,0.06);
-    }
-
-    /* reset e base */
-    * { box-sizing: border-box; }
-    html,body { height:100%; }
-    body{
-      margin:0;
-      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-      background: linear-gradient(180deg, var(--bg), rgba(0,0,0,0.02));
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      padding-bottom:40px;
-    }
-
-    header.appbar{
-      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      backdrop-filter: blur(6px);
-      box-shadow: var(--shadow);
-      padding:18px 20px;
-      display:flex;
-      gap:16px;
-      align-items:center;
-      justify-content:space-between;
-      position:sticky;
-      top:0;
-      z-index:30;
-    }
-
-    .brand {
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    .brand .logo {
-      width:44px;
-      height:44px;
-      border-radius:10px;
-      background:linear-gradient(135deg,var(--accent), #66e0ff);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:white;
-      font-weight:700;
-      box-shadow: 0 6px 18px rgba(3,7,18,0.4);
-      font-size:18px;
-    }
-    .brand h1 {
-      margin:0;
-      font-size:18px;
-      letter-spacing:0.6px;
-    }
-    .brand p { margin:0; font-size:12px; color:var(--muted); }
-
-    /* barra de ações */
-    .actions {
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-    .btn {
-      border: none;
-      background: var(--accent);
-      color: white;
-      padding:8px 12px;
-      border-radius:10px;
-      cursor:pointer;
-      font-weight:600;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.12);
-    }
-    .btn.ghost {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,0.04);
-    }
-    .btn.small { padding:6px 8px; font-size:14px; border-radius:8px; }
-
-    main {
-      max-width:1100px;
-      margin:22px auto;
-      padding:0 18px;
-    }
-
-    /* layout das abas */
-    nav.tabs {
-      display:flex;
-      gap:10px;
-      margin-bottom:18px;
-      flex-wrap:wrap;
-    }
-    nav.tabs button.tab {
-      padding:10px 14px;
-      border-radius:10px;
-      border:none;
-      background:var(--glass);
-      color:var(--text);
-      cursor:pointer;
-      font-weight:600;
-    }
-    nav.tabs button.tab.active {
-      background:linear-gradient(90deg,var(--accent), #66e0ff);
-      color:white;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    }
-
-    /* grid principal */
-    .grid {
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:18px;
-    }
-    @media(min-width:900px){
-      .grid { grid-template-columns: 1fr 360px; align-items:start; }
-    }
-
-    /* card */
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding:16px;
-      box-shadow: var(--shadow);
-    }
-
-    h2 { margin:0 0 10px 0; font-size:18px; }
-    label { display:block; font-size:13px; color:var(--muted); margin-top:10px; }
-    input[type="text"], input[type="number"], select, input[type="file"] {
-      width:100%;
-      padding:10px;
-      margin-top:6px;
-      border-radius:10px;
-      border: 1px solid rgba(0,0,0,0.06);
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      color:var(--text);
-      outline:none;
-    }
-
-    .stack { display:flex; flex-direction:column; gap:8px; }
-    .row { display:flex; gap:10px; }
-    .row .col { flex:1; }
-
-    ul { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
-    li.item {
-      display:flex;
-      gap:12px;
-      align-items:center;
-      padding:10px;
-      border-radius:10px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
-      border:1px solid rgba(255,255,255,0.02);
-    }
-    .item .thumb {
-      width:64px;
-      height:64px;
-      border-radius:8px;
-      background:#0b1220;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-      flex-shrink:0;
-    }
-    .item .thumb img { width:100%; height:100%; object-fit:cover; display:block; }
-
-    .meta { flex:1; }
-    .meta .title { font-weight:700; }
-    .meta .sub { color:var(--muted); font-size:13px; margin-top:6px; }
-
-    .footer-actions { display:flex; gap:8px; margin-top:12px; }
-    .action { background:var(--success); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; width:100%; font-weight:700; }
-    .action.secondary { background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--text); }
-
-    /* relatório */
-    #resumoRelatorio { padding:14px; border-radius:10px; background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); border:1px solid rgba(255,255,255,0.02); }
-
-    /* helpers */
-    .muted { color:var(--muted); font-size:13px; }
-    .text-right { text-align:right; }
-    .center { text-align:center; }
-
-    /* small screens spacing */
-    @media(max-width:560px){
-      .brand h1 { font-size:16px; }
-      .brand p { display:none; }
-    }
-  </style>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Script principal -->
+<script defer src="main.js"></script>
 </head>
+
 <body>
-
-  <header class="appbar">
-    <div class="brand">
-      <div class="logo">MJ</div>
-      <div>
-        <h1>MJ TECNOLOGI</h1>
-        <p>Controle de Vendas e Estoque</p>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button class="btn small" id="themeToggle" title="Alternar tema">Tema</button>
-      <button class="btn ghost small" onclick="gerarRelatorio()">Relatório</button>
-    </div>
+  <header>
+    <h1>MJ Tecnologia 2025</h1>
+    <button class="theme-toggle" onclick="alternarTema()">🌗 Tema</button>
   </header>
 
-  <main>
-    <nav class="tabs">
-      <button class="tab active" onclick="mostrarAba('produtos', this)">📦 Produtos</button>
-      <button class="tab" onclick="mostrarAba('vendas', this)">💰 Vendas</button>
-      <button class="tab" onclick="mostrarAba('relatorio', this)">📊 Relatório</button>
-    </nav>
+  <nav>
+    <button onclick="mostrarAba('produtos')">🏠 Produtos</button>
+    <button onclick="mostrarAba('vendas')">💸 Vendas</button>
+    <button onclick="mostrarAba('relatorios')">📊 Relatórios</button>
+  </nav>
 
-    <div class="grid">
-      <!-- coluna principal -->
-      <div>
-        <section id="produtos" class="card ativa">
-          <h2>Cadastro de Produto</h2>
-          <div class="stack">
-            <label>Nome do Produto</label>
-            <input id="nomeProduto" type="text" placeholder="Ex: Celular Xiaomi">
-
-            <div class="row">
-              <div class="col">
-                <label>Preço de Venda (R$)</label>
-                <input id="precoProduto" type="number" step="0.01">
-              </div>
-              <div class="col">
-                <label>Custo (R$)</label>
-                <input id="custoProduto" type="number" step="0.01">
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col">
-                <label>Estoque Inicial</label>
-                <input id="estoqueProduto" type="number">
-              </div>
-              <div class="col">
-                <label>Foto do Produto</label>
-                <input id="fotoProduto" type="file" accept="image/*">
-              </div>
-            </div>
-
-            <div class="row">
-              <button class="btn action" onclick="cadastrarProduto()">Adicionar Produto</button>
-            </div>
-
-            <h3 style="margin-top:8px">Lista de Produtos</h3>
-            <ul id="listaProdutos"></ul>
-          </div>
-        </section>
-
-        <section id="vendas" class="card" style="display:none; margin-top:18px;">
-          <h2>Registrar Venda</h2>
-          <div class="stack">
-            <label>Produto</label>
-            <select id="produtoVenda">
-              <option value="">Selecione...</option>
-            </select>
-
-            <div class="row">
-              <div class="col">
-                <label>Quantidade</label>
-                <input id="qtdVenda" type="number">
-              </div>
-              <div class="col">
-                <label>Dias de Prazo (se aplicável)</label>
-                <input id="diasPrazo" type="number" placeholder="Ex: 30">
-              </div>
-            </div>
-
-            <label>Tipo de Venda</label>
-            <div style="display:flex;gap:10px;">
-              <label class="muted"><input type="radio" name="tipoVenda" value="vista" checked> À Vista</label>
-              <label class="muted"><input type="radio" name="tipoVenda" value="prazo"> A Prazo</label>
-            </div>
-
-            <label>Cliente (opcional)</label>
-            <input id="clienteVenda" type="text" placeholder="Nome do cliente">
-            <label for="whatsVenda">WhatsApp do Cliente:</label>
-            <input type="tel" id="whatsVenda" placeholder="Ex: 55929931135510" />
-            <div class="row" style="margin-top:8px;">
-              <button class="btn action" onclick="registrarVenda()">Registrar Venda</button>
-              <button class="btn ghost" onclick="verificarVencimentos()">Vencimentos</button>
-            </div>
-
-            <h3 style="margin-top:12px">Histórico de Vendas</h3>
-            <ul id="listaVendas"></ul>
-          </div>
-        </section>
-      </div>
-
-      <!-- coluna lateral -->
-      <aside>
-        <div class="card">
-          <h2 class="center">Resumo</h2>
-          <div id="resumoRelatorio">
-            <div class="center muted">Clique em "Gerar Relatório" para ver os números.</div>
-          </div>
-
-          <div style="margin-top:12px;">
-            <button class="btn action" onclick="gerarRelatorio()">Gerar Relatório</button>
-            <button class="btn ghost" style="margin-top:8px;" onclick="salvarDados()">Salvar Agora</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:14px;">
-          <h3>Exportar</h3>
-          <p class="muted">Exportar lista atual de produtos e vendas (simples).</p>
-          <div style="display:flex; gap:8px; margin-top:8px;">
-            <button class="btn small" onclick="exportarJSON()">Exportar JSON</button>
-            <button class="btn small ghost" onclick="limparDados()">Limpar</button>
-          </div>
-        </div>
-      </aside>
+  <!-- === PRODUTOS === -->
+  <section id="produtos" class="ativa">
+    <div class="card">
+      <h2>Cadastro de Produto</h2>
+      <input type="text" id="nomeProduto" placeholder="Nome do produto">
+      <input type="number" id="precoProduto" placeholder="Preço de venda">
+      <input type="number" id="custoProduto" placeholder="Custo do produto">
+      <input type="number" id="estoqueProduto" placeholder="Estoque inicial">
+      <input type="file" id="fotoProduto" accept="image/*">
+      <button onclick="cadastrarProduto()">➕ Adicionar Produto</button>
     </div>
-  </main>
 
-  <!-- seu main.js já deve estar no mesmo diretório -->
-  <script src="main.js"></script>
+    <div class="card">
+      <h2>Lista de Produtos</h2>
+      <ul id="listaProdutos"></ul>
+    </div>
+  </section>
 
-  <!-- script adicional: alternar tema, alternar abas e utilitários (atualiza dropdown etc) -->
-  <script>
-    // Alternar abas (mantém compatibilidade com mostrarAba do main.js)
-    function mostrarAba(id, btn) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      if (btn) btn.classList.add('active');
+  <!-- === VENDAS === -->
+  <section id="vendas">
+    <div class="card">
+      <h2>Registrar Venda</h2>
+      <label>Produto:</label>
+      <select id="produtoVenda"></select>
+      <label>Quantidade:</label>
+      <input type="number" id="qtdVenda" placeholder="Quantidade vendida">
+      <label>Tipo de Venda:</label>
+      <div>
+        <label><input type="radio" name="tipoVenda" value="avista" checked> À Vista</label>
+        <label><input type="radio" name="tipoVenda" value="prazo"> A Prazo</label>
+      </div>
+      <label>Cliente:</label>
+      <input type="text" id="clienteVenda" placeholder="Nome do cliente">
+      <label>WhatsApp (somente números):</label>
+      <input type="text" id="whatsVenda" placeholder="92999998888">
+      <label>Dias para vencimento (se for a prazo):</label>
+      <input type="number" id="diasPrazo" placeholder="Ex: 7">
+      <button onclick="registrarVenda()">💾 Registrar Venda</button>
+    </div>
 
-      document.querySelectorAll('section.card').forEach(s => {
-        s.style.display = 'none';
-        s.classList.remove('ativa');
-      });
-      const sec = document.getElementById(id);
-      if (sec) {
-        sec.style.display = 'block';
-        sec.classList.add('ativa');
-      }
-    }
+    <div class="card">
+      <h2>Vendas Registradas</h2>
+      <ul id="listaVendas"></ul>
+    </div>
+  </section>
 
-    // Tema: salva preferência no localStorage
-    const themeToggle = document.getElementById('themeToggle');
-    function aplicarTema(tema) {
-      if (tema === 'light') document.body.classList.add('light');
-      else document.body.classList.remove('light');
-      localStorage.setItem('mj_tema', tema);
-      themeToggle.textContent = tema === 'light' ? '🌙 Escuro' : '☀️ Claro';
-    }
-    // inicializar tema
-    const temaSalvo = localStorage.getItem('mj_tema') || 'dark';
-    aplicarTema(temaSalvo === 'light' ? 'light' : 'dark');
-    themeToggle.addEventListener('click', () => {
-      const novo = document.body.classList.contains('light') ? 'dark' : 'light';
-      aplicarTema(novo);
-    });
+  <!-- === RELATÓRIOS === -->
+  <section id="relatorios">
+    <div class="card">
+      <h2>Resumo Financeiro</h2>
+      <div id="resumoRelatorio"></div>
+      <button onclick="gerarRelatorio()">🔁 Atualizar Relatório</button>
+    </div>
 
-    // Funções utilitárias usadas na UI
-    function atualizarProdutosDropdown() {
-      const select = document.getElementById("produtoVenda");
-      if (!select) return;
-      select.innerHTML = '<option value="">Selecione...</option>';
-      (window.produtos || []).forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p.id;
-        opt.textContent = p.nome;
-        select.appendChild(opt);
-      });
-    }
-
-    // Exportar JSON simples
-    function exportarJSON() {
-      const data = {
-        produtos: window.produtos || [],
-        vendas: window.vendas || []
-      };
-      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'mj-dados.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function limparDados() {
-      if (!confirm('Limpar todos os dados locais (produtos e vendas)?')) return;
-      localStorage.removeItem('produtos');
-      localStorage.removeItem('vendas');
-      window.produtos = [];
-      window.vendas = [];
-      listarProdutos();
-      listarVendas();
-      atualizarProdutosDropdown();
-      alert('Dados limpos.');
-    }
-
-    // Garantir chamadas iniciais (main.js define listarProdutos/listarVendas)
-    window.addEventListener('load', () => {
-      // se main.js carregou e expôs as variáveis, atualiza UI
-      if (typeof listarProdutos === 'function') listarProdutos();
-      if (typeof listarVendas === 'function') listarVendas();
-      if (typeof atualizarProdutosDropdown === 'function') atualizarProdutosDropdown();
-    });
-
-    // Se main.js sobrescrever salvarDados, manter o hook para dropdown (compatibilidade)
-    (function patchSalvar() {
-      if (typeof salvarDados !== 'function') return;
-      const original = salvarDados;
-      salvarDados = function() {
-        original();
-        atualizarProdutosDropdown();
-      };
-    })();
-  </script>
+    <div class="card">
+      <h2>Exportar Dados</h2>
+      <button onclick="exportarExcel()">📊 Exportar Excel</button>
+      <button onclick="exportarPDF()">📄 Exportar PDF</button>
+      <button class="limpar-btn" onclick="limparTudo()">🧹 Limpar Todos os Dados</button>
+    </div>
+  </section>
 </body>
 </html>
