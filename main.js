@@ -61,6 +61,7 @@ function cadastrarProduto() {
   const custo = parseFloat(document.getElementById("custoProduto").value);
   const estoque = parseInt(document.getElementById("estoqueProduto").value);
   const fotoInput = document.getElementById("fotoProduto");
+  const preview = document.getElementById("previewFoto"); // Novo preview da imagem
 
   if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
     alert("Preencha todos os campos corretamente!");
@@ -68,26 +69,43 @@ function cadastrarProduto() {
   }
 
   let foto = "";
+  preview.innerHTML = ""; // limpa o preview anterior
+
   if (fotoInput.files.length > 0) {
     const reader = new FileReader();
     reader.onload = function (e) {
       foto = e.target.result;
+
+      // Mostra a foto antes de salvar
+      preview.innerHTML = `<img src="${foto}" width="120" style="border-radius:8px; margin-top:8px;">`;
+
       produtos.push({ nome, preco, custo, estoque, foto });
       salvarDados();
       atualizarProdutos();
+
+      limparCamposProduto();
+      alert("Produto salvo com sucesso!");
     };
     reader.readAsDataURL(fotoInput.files[0]);
   } else {
     produtos.push({ nome, preco, custo, estoque, foto });
     salvarDados();
     atualizarProdutos();
-  }
 
+    limparCamposProduto();
+    alert("Produto salvo com sucesso!");
+  }
+}
+
+// ----- Nova função auxiliar para limpar campos -----
+function limparCamposProduto() {
   document.getElementById("nomeProduto").value = "";
   document.getElementById("precoProduto").value = "";
   document.getElementById("custoProduto").value = "";
   document.getElementById("estoqueProduto").value = "";
-  fotoInput.value = "";
+  document.getElementById("fotoProduto").value = "";
+  const preview = document.getElementById("previewFoto");
+  if (preview) preview.innerHTML = "";
 }
 
 // ----- Editar produto -----
