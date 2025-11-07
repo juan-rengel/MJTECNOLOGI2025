@@ -54,14 +54,14 @@ function atualizarProdutos() {
 }
 atualizarProdutos();
 
-// ----- Cadastrar produto -----
+// ----- Cadastrar produto (com câmera e preview) -----
 function cadastrarProduto() {
   const nome = document.getElementById("nomeProduto").value.trim();
   const preco = parseFloat(document.getElementById("precoProduto").value);
   const custo = parseFloat(document.getElementById("custoProduto").value);
   const estoque = parseInt(document.getElementById("estoqueProduto").value);
   const fotoInput = document.getElementById("fotoProduto");
-  const preview = document.getElementById("previewFoto"); // Novo preview da imagem
+  const preview = document.getElementById("previewFoto"); // Novo preview
 
   if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
     alert("Preencha todos os campos corretamente!");
@@ -69,15 +69,17 @@ function cadastrarProduto() {
   }
 
   let foto = "";
-  preview.innerHTML = ""; // limpa o preview anterior
+  if (preview) preview.innerHTML = ""; // limpa o preview anterior
 
   if (fotoInput.files.length > 0) {
     const reader = new FileReader();
     reader.onload = function (e) {
       foto = e.target.result;
 
-      // Mostra a foto antes de salvar
-      preview.innerHTML = `<img src="${foto}" width="120" style="border-radius:8px; margin-top:8px;">`;
+      // Mostra preview da imagem
+      if (preview) {
+        preview.innerHTML = `<img src="${foto}" width="120" style="border-radius:8px; margin-top:8px;">`;
+      }
 
       produtos.push({ nome, preco, custo, estoque, foto });
       salvarDados();
@@ -97,7 +99,7 @@ function cadastrarProduto() {
   }
 }
 
-// ----- Nova função auxiliar para limpar campos -----
+// ----- Nova função auxiliar -----
 function limparCamposProduto() {
   document.getElementById("nomeProduto").value = "";
   document.getElementById("precoProduto").value = "";
@@ -156,11 +158,7 @@ function salvarEdicaoProduto() {
     salvarDados();
     atualizarProdutos();
 
-    document.getElementById("nomeProduto").value = "";
-    document.getElementById("precoProduto").value = "";
-    document.getElementById("custoProduto").value = "";
-    document.getElementById("estoqueProduto").value = "";
-    fotoInput.value = "";
+    limparCamposProduto();
     delete fotoInput.dataset.editIndex;
 
     const botao = document.querySelector("#produtos button");
