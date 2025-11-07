@@ -39,7 +39,7 @@ function atualizarProdutos() {
       <strong>${p.nome}</strong><br>
       Preço: R$ ${p.preco.toFixed(2)} | Custo: R$ ${p.custo.toFixed(2)} |
       <span ${estoqueClass}>Estoque: ${p.estoque}</span>
-      ${p.foto ? `<br><img src="${p.foto}" width="60" style="margin-top:5px;border-radius:8px;">` : ""}
+      ${p.foto ? `<br><img src="${p.foto}" width="60">` : ""}
       <br>
       <button class="excluir-btn" onclick="excluirProduto(${i})">Excluir</button>
       <button class="excluir-btn" style="background:orange; margin-left:5px;" onclick="editarProduto(${i})">Editar</button>
@@ -54,17 +54,6 @@ function atualizarProdutos() {
 }
 atualizarProdutos();
 
-// ----- Função auxiliar para limpar campos -----
-function limparCamposProduto() {
-  document.getElementById("nomeProduto").value = "";
-  document.getElementById("precoProduto").value = "";
-  document.getElementById("custoProduto").value = "";
-  document.getElementById("estoqueProduto").value = "";
-  document.getElementById("fotoProduto").value = "";
-  const preview = document.getElementById("previewFoto");
-  if (preview) preview.innerHTML = "";
-}
-
 // ----- Cadastrar produto -----
 function cadastrarProduto() {
   const nome = document.getElementById("nomeProduto").value.trim();
@@ -72,7 +61,6 @@ function cadastrarProduto() {
   const custo = parseFloat(document.getElementById("custoProduto").value);
   const estoque = parseInt(document.getElementById("estoqueProduto").value);
   const fotoInput = document.getElementById("fotoProduto");
-  const preview = document.getElementById("previewFoto");
 
   if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
     alert("Preencha todos os campos corretamente!");
@@ -80,8 +68,6 @@ function cadastrarProduto() {
   }
 
   let foto = "";
-  preview.innerHTML = "";
-
   if (fotoInput.files.length > 0) {
     const reader = new FileReader();
     reader.onload = function (e) {
@@ -89,48 +75,19 @@ function cadastrarProduto() {
       produtos.push({ nome, preco, custo, estoque, foto });
       salvarDados();
       atualizarProdutos();
-      limparCamposProduto();
-      alert("Produto cadastrado com sucesso!");
     };
     reader.readAsDataURL(fotoInput.files[0]);
   } else {
     produtos.push({ nome, preco, custo, estoque, foto });
     salvarDados();
     atualizarProdutos();
-    limparCamposProduto();
-    alert("Produto cadastrado com sucesso!");
   }
-}
 
-// ====== NOVO RECURSO: SALVAR AUTOMATICAMENTE AO TIRAR FOTO ======
-const fotoProdutoInput = document.getElementById("fotoProduto");
-if (fotoProdutoInput) {
-  fotoProdutoInput.addEventListener("change", () => {
-    const nome = document.getElementById("nomeProduto").value.trim();
-    const preco = parseFloat(document.getElementById("precoProduto").value);
-    const custo = parseFloat(document.getElementById("custoProduto").value);
-    const estoque = parseInt(document.getElementById("estoqueProduto").value);
-
-    if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
-      alert("Preencha os outros campos antes de tirar a foto!");
-      fotoProdutoInput.value = "";
-      return;
-    }
-
-    const file = fotoProdutoInput.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const foto = e.target.result;
-        produtos.push({ nome, preco, custo, estoque, foto });
-        salvarDados();
-        atualizarProdutos();
-        limparCamposProduto();
-        alert("📸 Produto cadastrado automaticamente com sucesso!");
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+  document.getElementById("nomeProduto").value = "";
+  document.getElementById("precoProduto").value = "";
+  document.getElementById("custoProduto").value = "";
+  document.getElementById("estoqueProduto").value = "";
+  fotoInput.value = "";
 }
 
 // ----- Editar produto -----
@@ -180,7 +137,13 @@ function salvarEdicaoProduto() {
     produtos[i].estoque = estoque;
     salvarDados();
     atualizarProdutos();
-    limparCamposProduto();
+
+    document.getElementById("nomeProduto").value = "";
+    document.getElementById("precoProduto").value = "";
+    document.getElementById("custoProduto").value = "";
+    document.getElementById("estoqueProduto").value = "";
+    fotoInput.value = "";
+    delete fotoInput.dataset.editIndex;
 
     const botao = document.querySelector("#produtos button");
     botao.textContent = "➕ Adicionar Produto";
@@ -361,72 +324,51 @@ setInterval(() => {
   });
 }, 60000);
 
-
-
 // ====== NOVO RECURSO: SALVAR AUTOMATICAMENTE AO TIRAR FOTO ======
-// ====== NOVO RECURSO: SALVAR AUTOMATICAMENTE AO TIRAR FOTO (VERSÃO CORRIGIDA) ======
 document.addEventListener("DOMContentLoaded", () => {
   const fotoProdutoInput = document.getElementById("fotoProduto");
-  if (!fotoProdutoInput) return; // input não existe -> nada a fazer
+  if (!fotoProdutoInput) return;
 
   fotoProdutoInput.addEventListener("change", () => {
-    // Se estivermos em modo edição, não fazer autosave (manter fluxo de edição existente)
-    if (Object.prototype.hasOwnProperty.call(fotoProdutoInput.dataset, "editIndex")) {
-      return;
-    }
+    if (fotoProdutoInput.dataset.editIndex) return;
 
     const file = fotoProdutoInput.files && fotoProdutoInput.files[0];
     if (!file) return;
 
-    const nomeEl = document.getElementById("nomeProduto");
-    const precoEl = document.getElementById("precoProduto");
-    const custoEl = document.getElementById("custoProduto");
-    const estoqueEl = document.getElementById("estoqueProduto");
+    const nome = document.getElementById("nomeProduto").value.trim();
+    const preco = parseFloat(document.getElementById("precoProduto").value);
+    const custo = parseFloat(document.getElementById("custoProduto").value);
+    const estoque = parseInt(document.getElementById("estoqueProduto").value);
     const preview = document.getElementById("previewFoto");
-
-    const nome = nomeEl ? nomeEl.value.trim() : "";
-    const preco = precoEl ? parseFloat(precoEl.value) : NaN;
-    const custo = custoEl ? parseFloat(custoEl.value) : NaN;
-    const estoque = estoqueEl ? parseInt(estoqueEl.value) : NaN;
 
     if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
       alert("Preencha os outros campos antes de tirar a foto!");
-      // limpa o input para evitar comportamento confuso depois
       fotoProdutoInput.value = "";
       return;
     }
 
     const reader = new FileReader();
-    reader.addEventListener("load", (e) => {
+    reader.onload = (e) => {
       const foto = e.target.result;
 
-      // Mostrar preview (se existir o container)
       if (preview) {
         preview.innerHTML = `<img src="${foto}" width="80" style="border-radius:10px;margin-top:5px;">`;
       }
 
-      // Salva produto automaticamente
       produtos.push({ nome, preco, custo, estoque, foto });
       salvarDados();
       atualizarProdutos();
 
-      // Limpa campos (mantém função auxiliar para consistência)
-      if (typeof limparCamposProduto === "function") {
-        limparCamposProduto();
-      } else {
-        // fallback seguro
-        if (nomeEl) nomeEl.value = "";
-        if (precoEl) precoEl.value = "";
-        if (custoEl) custoEl.value = "";
-        if (estoqueEl) estoqueEl.value = "";
-        fotoProdutoInput.value = "";
-        if (preview) preview.innerHTML = "";
-      }
+      document.getElementById("nomeProduto").value = "";
+      document.getElementById("precoProduto").value = "";
+      document.getElementById("custoProduto").value = "";
+      document.getElementById("estoqueProduto").value = "";
+      fotoProdutoInput.value = "";
+      if (preview) preview.innerHTML = "";
 
       alert("📸 Produto cadastrado automaticamente com sucesso!");
-    });
+    };
 
-    // Inicia leitura (dispara onload quando pronto)
     reader.readAsDataURL(file);
   });
 });
