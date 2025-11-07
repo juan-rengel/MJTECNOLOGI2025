@@ -39,7 +39,7 @@ function atualizarProdutos() {
       <strong>${p.nome}</strong><br>
       Preço: R$ ${p.preco.toFixed(2)} | Custo: R$ ${p.custo.toFixed(2)} |
       <span ${estoqueClass}>Estoque: ${p.estoque}</span>
-      ${p.foto ? `<br><img src="${p.foto}" width="60">` : ""}
+      ${p.foto ? `<br><img src="${p.foto}" width="60" style="margin-top:5px;border-radius:8px;">` : ""}
       <br>
       <button class="excluir-btn" onclick="excluirProduto(${i})">Excluir</button>
       <button class="excluir-btn" style="background:orange; margin-left:5px;" onclick="editarProduto(${i})">Editar</button>
@@ -54,52 +54,7 @@ function atualizarProdutos() {
 }
 atualizarProdutos();
 
-// ----- Cadastrar produto (com câmera e preview) -----
-function cadastrarProduto() {
-  const nome = document.getElementById("nomeProduto").value.trim();
-  const preco = parseFloat(document.getElementById("precoProduto").value);
-  const custo = parseFloat(document.getElementById("custoProduto").value);
-  const estoque = parseInt(document.getElementById("estoqueProduto").value);
-  const fotoInput = document.getElementById("fotoProduto");
-  const preview = document.getElementById("previewFoto"); // Novo preview
-
-  if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
-    alert("Preencha todos os campos corretamente!");
-    return;
-  }
-
-  let foto = "";
-  if (preview) preview.innerHTML = ""; // limpa o preview anterior
-
-  if (fotoInput.files.length > 0) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      foto = e.target.result;
-
-      // Mostra preview da imagem
-      if (preview) {
-        preview.innerHTML = `<img src="${foto}" width="120" style="border-radius:8px; margin-top:8px;">`;
-      }
-
-      produtos.push({ nome, preco, custo, estoque, foto });
-      salvarDados();
-      atualizarProdutos();
-
-      limparCamposProduto();
-      alert("Produto salvo com sucesso!");
-    };
-    reader.readAsDataURL(fotoInput.files[0]);
-  } else {
-    produtos.push({ nome, preco, custo, estoque, foto });
-    salvarDados();
-    atualizarProdutos();
-
-    limparCamposProduto();
-    alert("Produto salvo com sucesso!");
-  }
-}
-
-// ----- Nova função auxiliar -----
+// ----- Função auxiliar para limpar campos -----
 function limparCamposProduto() {
   document.getElementById("nomeProduto").value = "";
   document.getElementById("precoProduto").value = "";
@@ -108,6 +63,74 @@ function limparCamposProduto() {
   document.getElementById("fotoProduto").value = "";
   const preview = document.getElementById("previewFoto");
   if (preview) preview.innerHTML = "";
+}
+
+// ----- Cadastrar produto -----
+function cadastrarProduto() {
+  const nome = document.getElementById("nomeProduto").value.trim();
+  const preco = parseFloat(document.getElementById("precoProduto").value);
+  const custo = parseFloat(document.getElementById("custoProduto").value);
+  const estoque = parseInt(document.getElementById("estoqueProduto").value);
+  const fotoInput = document.getElementById("fotoProduto");
+  const preview = document.getElementById("previewFoto");
+
+  if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
+    alert("Preencha todos os campos corretamente!");
+    return;
+  }
+
+  let foto = "";
+  preview.innerHTML = "";
+
+  if (fotoInput.files.length > 0) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      foto = e.target.result;
+      produtos.push({ nome, preco, custo, estoque, foto });
+      salvarDados();
+      atualizarProdutos();
+      limparCamposProduto();
+      alert("Produto cadastrado com sucesso!");
+    };
+    reader.readAsDataURL(fotoInput.files[0]);
+  } else {
+    produtos.push({ nome, preco, custo, estoque, foto });
+    salvarDados();
+    atualizarProdutos();
+    limparCamposProduto();
+    alert("Produto cadastrado com sucesso!");
+  }
+}
+
+// ====== NOVO RECURSO: SALVAR AUTOMATICAMENTE AO TIRAR FOTO ======
+const fotoProdutoInput = document.getElementById("fotoProduto");
+if (fotoProdutoInput) {
+  fotoProdutoInput.addEventListener("change", () => {
+    const nome = document.getElementById("nomeProduto").value.trim();
+    const preco = parseFloat(document.getElementById("precoProduto").value);
+    const custo = parseFloat(document.getElementById("custoProduto").value);
+    const estoque = parseInt(document.getElementById("estoqueProduto").value);
+
+    if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
+      alert("Preencha os outros campos antes de tirar a foto!");
+      fotoProdutoInput.value = "";
+      return;
+    }
+
+    const file = fotoProdutoInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const foto = e.target.result;
+        produtos.push({ nome, preco, custo, estoque, foto });
+        salvarDados();
+        atualizarProdutos();
+        limparCamposProduto();
+        alert("📸 Produto cadastrado automaticamente com sucesso!");
+      };
+      reader.readAsDataURL(file);
+    }
+  });
 }
 
 // ----- Editar produto -----
@@ -157,9 +180,7 @@ function salvarEdicaoProduto() {
     produtos[i].estoque = estoque;
     salvarDados();
     atualizarProdutos();
-
     limparCamposProduto();
-    delete fotoInput.dataset.editIndex;
 
     const botao = document.querySelector("#produtos button");
     botao.textContent = "➕ Adicionar Produto";
@@ -217,7 +238,6 @@ function registrarVenda() {
   atualizarProdutos();
   atualizarVendas();
 
-  // Mensagem WhatsApp se venda a prazo
   if (tipo === "prazo" && whats) {
     const msg = `Olá ${cliente}! Sua compra de ${produto.nome} no valor de R$ ${total.toFixed(2)} vence em ${diasPrazo} dia(s).`;
     const link = `https://wa.me/55${whats}?text=${encodeURIComponent(msg)}`;
