@@ -1,44 +1,97 @@
 // ======== SISTEMA MJ TECNOLOGIA 2025 ========
 
-// ----- Variáveis principais -----
 let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
 let vendas = JSON.parse(localStorage.getItem("vendas")) || [];
 
-// ----- Alternar tema claro/escuro -----
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    // aplica tema salvo
+    if (localStorage.getItem("temaClaro") === "true") {
+      document.body.classList.add("light");
+    }
+
+    // inicializa botões/handlers
+    const btnCadastrar = document.getElementById("btnCadastrarProduto");
+    if (btnCadastrar) {
+      // garante que o onclick exista (compatível com index.html que tem onclick inline)
+      btnCadastrar.onclick = cadastrarProduto;
+    } else {
+      console.warn("botão #btnCadastrarProduto não encontrado no DOM.");
+    }
+
+    const fotoInput = document.getElementById("fotoProduto");
+    if (fotoInput) {
+      fotoInput.addEventListener("change", mostrarPreviewFoto);
+    }
+
+    // render inicial
+    atualizarProdutos();
+    atualizarVendas();
+    gerarRelatorio();
+
+    console.log("MJ Tecnologia: script inicializado com sucesso.");
+  } catch (err) {
+    console.error("Erro ao inicializar script:", err);
+    alert("Ocorreu um erro ao iniciar o sistema. Abra o console para mais detalhes.");
+  }
+});
+
+// ----- Tema -----
 function alternarTema() {
   document.body.classList.toggle("light");
   localStorage.setItem("temaClaro", document.body.classList.contains("light"));
 }
-if (localStorage.getItem("temaClaro") === "true") {
-  document.body.classList.add("light");
-}
 
-// ----- Trocar abas internas -----
+// ----- Abas -----
 function mostrarAba(id) {
   document.querySelectorAll("section").forEach(sec => sec.classList.remove("ativa"));
-  document.getElementById(id).classList.add("ativa");
+  const alvo = document.getElementById(id);
+  if (alvo) alvo.classList.add("ativa");
 }
 
-// ----- Salvar dados -----
+// ----- Salvar localStorage -----
 function salvarDados() {
   localStorage.setItem("produtos", JSON.stringify(produtos));
   localStorage.setItem("vendas", JSON.stringify(vendas));
 }
 
-// ----- Atualizar listas -----
+// ----- Preview foto -----
+function mostrarPreviewFoto() {
+  const preview = document.getElementById("previewFoto");
+  const input = document.getElementById("fotoProduto");
+  preview.innerHTML = "";
+  if (input && input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = document.createElement("img");
+      img.src = e.target.result;
+      img.style.maxWidth = "120px";
+      img.style.borderRadius = "6px";
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// ----- Atualizar lista de produtos -----
 function atualizarProdutos() {
   const lista = document.getElementById("listaProdutos");
   const select = document.getElementById("produtoVenda");
+  if (!lista || !select) {
+    console.warn("Elementos de lista-produtos ou produtoVenda não encontrados.");
+    return;
+  }
   lista.innerHTML = "";
   select.innerHTML = "<option value=''>Selecione</option>";
 
   produtos.forEach((p, i) => {
     const li = document.createElement("li");
-    let estoqueClass = parseInt(p.estoque) < 3 ? "style='color:red; font-weight:bold;'" : "";
+    const estoqueInt = parseInt(p.estoque) || 0;
+    let estoqueClass = estoqueInt < 3 ? "style='color:red; font-weight:bold;'" : "";
     li.innerHTML = `
       <strong>${p.nome}</strong><br>
-      Preço: R$ ${p.preco.toFixed(2)} | Custo: R$ ${p.custo.toFixed(2)} |
-      <span ${estoqueClass}>Estoque: ${p.estoque}</span>
+      Preço: R$ ${Number(p.preco).toFixed(2)} | Custo: R$ ${Number(p.custo).toFixed(2)} |
+      <span ${estoqueClass}>Estoque: ${estoqueInt}</span>
       ${p.foto ? `<br><img src="${p.foto}" width="60">` : ""}
       <br>
       <button class="excluir-btn" onclick="excluirProduto(${i})">Excluir</button>
@@ -52,55 +105,63 @@ function atualizarProdutos() {
     select.appendChild(opt);
   });
 }
-atualizarProdutos();
 
-// ====== CADASTRAR PRODUTO (CORRIGIDO) ======
+// ----- Cadastrar produto -----
 function cadastrarProduto() {
-  const nome = document.getElementById("nomeProduto").value.trim();
-  const preco = parseFloat(document.getElementById("precoProduto").value);
-  const custo = parseFloat(document.getElementById("custoProduto").value);
-  const estoque = parseInt(document.getElementById("estoqueProduto").value);
-  const fotoInput = document.getElementById("fotoProduto");
+  try {
+    const nome = document.getElementById("nomeProduto").value.trim();
+    const preco = parseFloat(document.getElementById("precoProduto").value);
+    const custo = parseFloat(document.getElementById("custoProduto").value);
+    const estoque = parseInt(document.getElementById("estoqueProduto").value);
+    const fotoInput = document.getElementById("fotoProduto");
 
-  if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
-    alert("⚠️ Preencha todos os campos corretamente!");
-    return;
-  }
+    if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
+      alert("⚠️ Preencha todos os campos corretamente!");
+      return;
+    }
 
-  const salvarProduto = (fotoBase64) => {
-    produtos.push({
-      nome,
-      preco,
-      custo,
-      estoque,
-      foto: fotoBase64 || null
-    });
+    const salvarProduto = (fotoBase64) => {
+      produtos.push({
+        nome,
+        preco,
+        custo,
+        estoque,
+        foto: fotoBase64 || null
+      });
+      salvarDados();
+      atualizarProdutos();
+      limparCamposProduto();
+      alert("✅ Produto cadastrado com sucesso!");
+    };
 
-    salvarDados();
-    atualizarProdutos();
-    limparCamposProduto();
-    alert("✅ Produto cadastrado com sucesso!");
-  };
-
-  if (fotoInput.files && fotoInput.files[0]) {
-    const leitor = new FileReader();
-    leitor.onload = (e) => salvarProduto(e.target.result);
-    leitor.readAsDataURL(fotoInput.files[0]);
-  } else {
-    salvarProduto(null);
+    if (fotoInput && fotoInput.files && fotoInput.files[0]) {
+      const leitor = new FileReader();
+      leitor.onload = (e) => salvarProduto(e.target.result);
+      leitor.readAsDataURL(fotoInput.files[0]);
+    } else {
+      salvarProduto(null);
+    }
+  } catch (err) {
+    console.error("Erro em cadastrarProduto:", err);
+    alert("Erro ao cadastrar produto. Veja o console para detalhes.");
   }
 }
 
-// ----- Função para limpar campos -----
+// ----- Limpar campos -----
 function limparCamposProduto() {
   document.getElementById("nomeProduto").value = "";
   document.getElementById("precoProduto").value = "";
   document.getElementById("custoProduto").value = "";
   document.getElementById("estoqueProduto").value = "";
-  document.getElementById("fotoProduto").value = "";
-  document.getElementById("previewFoto").innerHTML = "";
+  const fotoInput = document.getElementById("fotoProduto");
+  if (fotoInput) {
+    fotoInput.value = "";
+    delete fotoInput.dataset.editIndex;
+  }
+  const preview = document.getElementById("previewFoto");
+  if (preview) preview.innerHTML = "";
 
-  const botao = document.querySelector("#btnCadastrarProduto");
+  const botao = document.getElementById("btnCadastrarProduto");
   if (botao) {
     botao.textContent = "➕ Adicionar Produto";
     botao.onclick = cadastrarProduto;
@@ -110,51 +171,65 @@ function limparCamposProduto() {
 // ----- Editar produto -----
 function editarProduto(i) {
   const p = produtos[i];
+  if (!p) {
+    alert("Produto não encontrado para edição.");
+    return;
+  }
   document.getElementById("nomeProduto").value = p.nome;
   document.getElementById("precoProduto").value = p.preco;
   document.getElementById("custoProduto").value = p.custo;
   document.getElementById("estoqueProduto").value = p.estoque;
-  document.getElementById("fotoProduto").dataset.editIndex = i;
 
-  const botao = document.querySelector("#btnCadastrarProduto");
-  botao.textContent = "💾 Salvar Alterações";
-  botao.onclick = () => salvarEdicaoProduto(i);
+  const fotoInput = document.getElementById("fotoProduto");
+  if (fotoInput) fotoInput.dataset.editIndex = i;
+
+  const botao = document.getElementById("btnCadastrarProduto");
+  if (botao) {
+    botao.textContent = "💾 Salvar Alterações";
+    botao.onclick = () => salvarEdicaoProduto(i);
+  } else {
+    alert("Botão de cadastro não encontrado.");
+  }
 }
 
 // ----- Salvar edição -----
 function salvarEdicaoProduto(i) {
-  const nome = document.getElementById("nomeProduto").value.trim();
-  const preco = parseFloat(document.getElementById("precoProduto").value);
-  const custo = parseFloat(document.getElementById("custoProduto").value);
-  const estoque = parseInt(document.getElementById("estoqueProduto").value);
-  const fotoInput = document.getElementById("fotoProduto");
+  try {
+    const nome = document.getElementById("nomeProduto").value.trim();
+    const preco = parseFloat(document.getElementById("precoProduto").value);
+    const custo = parseFloat(document.getElementById("custoProduto").value);
+    const estoque = parseInt(document.getElementById("estoqueProduto").value);
+    const fotoInput = document.getElementById("fotoProduto");
 
-  if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
-    alert("⚠️ Preencha todos os campos corretamente!");
-    return;
-  }
+    if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
+      alert("⚠️ Preencha todos os campos corretamente!");
+      return;
+    }
 
-  const atualizarCampos = (fotoBase64) => {
-    produtos[i] = {
-      nome,
-      preco,
-      custo,
-      estoque,
-      foto: fotoBase64 || produtos[i].foto
+    const aplicarAtualizacao = (fotoBase64) => {
+      produtos[i] = {
+        nome,
+        preco,
+        custo,
+        estoque,
+        foto: fotoBase64 || (produtos[i] ? produtos[i].foto : null)
+      };
+      salvarDados();
+      atualizarProdutos();
+      limparCamposProduto();
+      alert("✅ Produto atualizado com sucesso!");
     };
 
-    salvarDados();
-    atualizarProdutos();
-    limparCamposProduto();
-    alert("✅ Produto atualizado com sucesso!");
-  };
-
-  if (fotoInput.files.length > 0) {
-    const leitor = new FileReader();
-    leitor.onload = (e) => atualizarCampos(e.target.result);
-    leitor.readAsDataURL(fotoInput.files[0]);
-  } else {
-    atualizarCampos(produtos[i].foto);
+    if (fotoInput && fotoInput.files && fotoInput.files.length > 0) {
+      const leitor = new FileReader();
+      leitor.onload = (e) => aplicarAtualizacao(e.target.result);
+      leitor.readAsDataURL(fotoInput.files[0]);
+    } else {
+      aplicarAtualizacao(produtos[i] ? produtos[i].foto : null);
+    }
+  } catch (err) {
+    console.error("Erro em salvarEdicaoProduto:", err);
+    alert("Erro ao salvar edição. Veja o console para detalhes.");
   }
 }
 
@@ -169,60 +244,70 @@ function excluirProduto(i) {
 
 // ----- Registrar venda -----
 function registrarVenda() {
-  const produtoIndex = document.getElementById("produtoVenda").value;
-  const qtd = parseInt(document.getElementById("qtdVenda").value);
-  const tipo = document.querySelector('input[name="tipoVenda"]:checked').value;
-  const cliente = document.getElementById("clienteVenda").value.trim();
-  const whats = document.getElementById("whatsVenda").value.trim();
-  const diasPrazo = parseInt(document.getElementById("diasPrazo").value) || 0;
+  try {
+    const produtoIndex = document.getElementById("produtoVenda").value;
+    const qtd = parseInt(document.getElementById("qtdVenda").value);
+    const tipo = document.querySelector('input[name="tipoVenda"]:checked').value;
+    const cliente = document.getElementById("clienteVenda").value.trim();
+    const whats = document.getElementById("whatsVenda").value.trim();
+    const diasPrazo = parseInt(document.getElementById("diasPrazo").value) || 0;
 
-  if (produtoIndex === "" || isNaN(qtd) || !cliente) {
-    alert("Preencha todos os campos obrigatórios!");
-    return;
+    if (produtoIndex === "" || isNaN(qtd) || !cliente) {
+      alert("Preencha todos os campos obrigatórios!");
+      return;
+    }
+
+    const produto = produtos[produtoIndex];
+    if (!produto) {
+      alert("Produto inválido.");
+      return;
+    }
+    if (produto.estoque < qtd) {
+      alert("Estoque insuficiente!");
+      return;
+    }
+
+    const total = produto.preco * qtd;
+    const vencimento = tipo === "prazo" ? new Date(Date.now() + diasPrazo * 86400000) : null;
+
+    vendas.push({
+      produto: produto.nome,
+      quantidade: qtd,
+      total,
+      tipo,
+      cliente,
+      whats,
+      vencimento: vencimento ? vencimento.toISOString() : null,
+      pago: tipo === "avista"
+    });
+
+    produto.estoque -= qtd;
+    salvarDados();
+    atualizarProdutos();
+    atualizarVendas();
+
+    if (tipo === "prazo" && whats) {
+      const msg = `Olá ${cliente}! Sua compra de ${produto.nome} no valor de R$ ${total.toFixed(2)} vence em ${diasPrazo} dia(s).`;
+      const link = `https://wa.me/55${whats}?text=${encodeURIComponent(msg)}`;
+      window.open(link, "_blank");
+    }
+
+    alert("Venda registrada com sucesso!");
+    document.getElementById("produtoVenda").value = "";
+    document.getElementById("qtdVenda").value = "";
+    document.getElementById("clienteVenda").value = "";
+    document.getElementById("whatsVenda").value = "";
+    document.getElementById("diasPrazo").value = "";
+  } catch (err) {
+    console.error("Erro em registrarVenda:", err);
+    alert("Erro ao registrar venda. Veja o console para detalhes.");
   }
-
-  const produto = produtos[produtoIndex];
-  if (produto.estoque < qtd) {
-    alert("Estoque insuficiente!");
-    return;
-  }
-
-  const total = produto.preco * qtd;
-  const vencimento = tipo === "prazo" ? new Date(Date.now() + diasPrazo * 86400000) : null;
-
-  vendas.push({
-    produto: produto.nome,
-    quantidade: qtd,
-    total,
-    tipo,
-    cliente,
-    whats,
-    vencimento: vencimento ? vencimento.toISOString() : null,
-    pago: tipo === "avista"
-  });
-
-  produto.estoque -= qtd;
-  salvarDados();
-  atualizarProdutos();
-  atualizarVendas();
-
-  if (tipo === "prazo" && whats) {
-    const msg = `Olá ${cliente}! Sua compra de ${produto.nome} no valor de R$ ${total.toFixed(2)} vence em ${diasPrazo} dia(s).`;
-    const link = `https://wa.me/55${whats}?text=${encodeURIComponent(msg)}`;
-    window.open(link, "_blank");
-  }
-
-  alert("Venda registrada com sucesso!");
-  document.getElementById("produtoVenda").value = "";
-  document.getElementById("qtdVenda").value = "";
-  document.getElementById("clienteVenda").value = "";
-  document.getElementById("whatsVenda").value = "";
-  document.getElementById("diasPrazo").value = "";
 }
 
 // ----- Atualizar lista de vendas -----
 function atualizarVendas() {
   const lista = document.getElementById("listaVendas");
+  if (!lista) return;
   lista.innerHTML = "";
 
   vendas.forEach((v, i) => {
@@ -237,7 +322,6 @@ function atualizarVendas() {
     lista.appendChild(li);
   });
 }
-atualizarVendas();
 
 // ----- Excluir venda -----
 function excluirVenda(i) {
@@ -256,6 +340,7 @@ function excluirVenda(i) {
 // ----- Relatório -----
 function gerarRelatorio() {
   const resumo = document.getElementById("resumoRelatorio");
+  if (!resumo) return;
   const totalVendas = vendas.reduce((a, v) => a + v.total, 0);
   const lucro = vendas.reduce((a, v) => {
     const p = produtos.find(p => p.nome === v.produto);
@@ -268,7 +353,6 @@ function gerarRelatorio() {
     <p><strong>Quantidade de Vendas:</strong> ${vendas.length}</p>
   `;
 }
-gerarRelatorio();
 
 // ----- Exportar Excel -----
 function exportarExcel() {
@@ -312,7 +396,7 @@ function limparTudo() {
   }
 }
 
-// ----- Lembrete automático WhatsApp -----
+// ----- Lembrete automático WhatsApp (checa a cada minuto) -----
 setInterval(() => {
   const hoje = new Date().toISOString().split("T")[0];
   vendas.forEach(v => {
