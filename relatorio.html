@@ -2,183 +2,298 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Relatórios - MJ Tecnologia 2025</title>
-  <link rel="icon" href="logo.png" />
-  <style>
-   /* ====== VARIÁVEIS DE TEMA ====== */
-/* ====== VARIÁVEIS DE TEMA ====== */
-:root {
-  --bg: #0a0f1f;
-  --card: #141c2f;
-  --text: #e2e8f0;
-  --accent: #007bff;
-}
-
-/* ====== TEMA CLARO ====== */
-body.light {
-  --bg: #f5f6fa;
-  --card: #ffffff;
-  --text: #111111;
-}
-
-/* ====== ESTILOS GERAIS ====== */
-body {
-  font-family: "Poppins", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  margin: 0;
-  transition: background 0.3s, color 0.3s;
-}
-
-/* ====== CABEÇALHO ====== */
-header {
-  background: var(--card);
-  padding: 12px 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-header h1 {
-  color: var(--accent);
-  margin: 0;
-}
-
-/* ====== BOTÃO TEMA ====== */
-.theme-toggle {
-  background: var(--accent);
-  color: #fff;
-  border-radius: 8px;
-  padding: 8px 12px;
-  border: none;
-  cursor: pointer;
-}
-
-/* ====== CONTEÚDO PRINCIPAL ====== */
-main {
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 0 16px;
-}
-
-/* ====== CARTÕES ====== */
-.card {
-  background: var(--card);
-  border-radius: 12px;
-  padding: 18px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* ====== TÍTULOS ====== */
-h2 {
-  color: var(--accent);
-  margin-top: 0;
-}
-
-/* ====== BOTÕES ====== */
-button {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-right: 8px;
-  transition: 0.3s;
-}
-
-button:hover {
-  opacity: 0.85;
-}
-
-/* ====== LISTAS ====== */
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-li {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 8px;
-}
-
-/* ====== MENU ====== */
-.menu {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.menu a {
-  flex: 1;
-  text-align: center;
-  background: var(--accent);
-  color: #fff;
-  padding: 10px;
-  border-radius: 10px;
-  text-decoration: none;
-  transition: 0.3s;
-}
-
-.menu a:hover {
-  opacity: 0.9;
-}
-
-
-  </style>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MJ Tecnologia 2025</title>
+  <meta name="theme-color" content="#0a0f1f" />
+  <link rel="manifest" href="manifest.json" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script defer src="main.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("✅ Service Worker registrado"))
+        .catch((err) => console.log("❌ Erro SW:", err));
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0a0f1f;
+      --card: #141c2f;
+      --text: #e2e8f0;
+      --accent: #0078d7;
+      --danger: #d93025;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      transition: 0.3s;
+    }
+
+    header {
+      background: var(--card);
+      color: var(--accent);
+      text-align: center;
+      padding: 14px;
+      font-size: 20px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: #10182f;
+      padding: 10px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    nav button {
+      flex: 1;
+      min-width: 80px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    nav button:hover {
+      background: #339cff;
+    }
+
+    section {
+      display: none;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    section.ativa {
+      display: block;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    h2, h3 {
+      color: var(--accent);
+      margin-top: 0;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #0f1a2f;
+      color: var(--text);
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 5px var(--accent);
+    }
+
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #339cff;
+    }
+
+    .danger-btn {
+      background: var(--danger);
+    }
+
+    .danger-btn:hover {
+      background: #ff4b3e;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    #previewFoto img {
+      margin-top: 5px;
+      max-width: 150px;
+      border-radius: 8px;
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      nav {
+        flex-direction: column;
+      }
+    }
+
+    /* CARD DE VALORES */
+    .valor-card {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .valor-card .box {
+      flex: 1;
+      min-width: 150px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 16px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .valor-card h4 {
+      margin: 0;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .valor-card p {
+      margin: 8px 0 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>📊 Relatórios - MJ Tecnologia 2025</h1>
-    <div>
-      <a href="index.html" style="color:var(--accent);margin-right:12px;text-decoration:none;font-weight:700">🏠 Voltar</a>
-      <button class="theme-toggle" onclick="alternarTema()">🌗 Tema</button>
-    </div>
-  </header>
+  <header>📱 MJ Tecnologia 2025</header>
 
-  <main>
-    <div class="menu">
-      <a href="index.html">🏠 Home</a>
-      <a href="relatorio.html">📈 Relatórios</a>
+  <nav>
+    <button onclick="mostrarAba('produtos')">🏷️ Produtos</button>
+    <button onclick="mostrarAba('vendas')">💰 Vendas</button>
+    <button onclick="mostrarAba('relatorio')">📊 Relatórios</button>
+    <button onclick="alternarTema()">🌙 Tema</button>
+  </nav>
+
+  <!-- PRODUTOS -->
+  <section id="produtos" class="ativa">
+    <div class="card">
+      <h2>Cadastro de Produtos</h2>
+      <input type="text" id="nomeProduto" placeholder="Nome do produto" />
+      <input type="number" id="precoProduto" placeholder="Preço de venda (R$)" step="0.01" />
+      <input type="number" id="custoProduto" placeholder="Custo do produto (R$)" step="0.01" />
+      <input type="number" id="estoqueProduto" placeholder="Quantidade em estoque" />
+
+      <label>📸 Foto do produto:</label>
+      <input type="file" id="fotoProduto" accept="image/*" capture="environment" onchange="previewImagem(event)" />
+      <div id="previewFoto"></div>
+
+      <br />
+      <button onclick="cadastrarProduto()">➕ Adicionar Produto</button>
     </div>
 
     <div class="card">
-      <h2>Resumo Financeiro</h2>
-      <div id="resumoRelatorio">Carregando...</div>
-      <div style="margin-top:12px">
-        <button onclick="gerarRelatorio()">🔁 Atualizar</button>
-        <button onclick="exportarTudoCSV()">📈 Exportar Excel (CSV)</button>
-        <button onclick="exportarTudoPDF()">📄 Exportar PDF</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Produtos</h2>
+      <h3>Lista de Produtos</h3>
       <ul id="listaProdutos"></ul>
     </div>
+  </section>
+
+  <!-- VENDAS -->
+  <section id="vendas">
+    <div class="card">
+      <h2>Registrar Venda</h2>
+      <select id="produtoVenda"></select>
+      <input type="number" id="qtdVenda" placeholder="Quantidade vendida" />
+      <div>
+        <label><input type="radio" name="tipoVenda" value="avista" checked /> À Vista</label>
+        <label><input type="radio" name="tipoVenda" value="prazo" /> A Prazo</label>
+      </div>
+      <input type="text" id="clienteVenda" placeholder="Nome do cliente" />
+      <input type="number" id="whatsVenda" placeholder="WhatsApp (somente números)" />
+      <input type="number" id="diasPrazo" placeholder="Dias para vencimento (opcional)" />
+      <button onclick="registrarVenda()">💾 Registrar Venda</button>
+    </div>
 
     <div class="card">
-      <h2>Vendas</h2>
+      <h3>Lista de Vendas</h3>
       <ul id="listaVendas"></ul>
     </div>
+  </section>
 
+  <!-- RELATÓRIO -->
+  <section id="relatorio">
     <div class="card">
-      <h2>Gerenciar Dados</h2>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button onclick="exportarJSON()">💾 Exportar JSON</button>
-        <input id="fileImport" type="file" accept=".json" style="display:inline-block" onchange="(function(f){ if(f) importarJSON(f); })(this.files[0])">
-        <button onclick="limparDados()" style="background:#ef4444">🧹 Limpar Tudo</button>
+      <h2>Relatório Financeiro</h2>
+      <div id="resumoRelatorio"></div>
+      <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;">
+        <button onclick="gerarRelatorio()">🔁 Atualizar</button>
+        <button onclick="exportarExcel()">📊 Exportar Excel</button>
+        <button onclick="exportarPDF()">📄 Exportar PDF</button>
+        <button class="danger-btn" onclick="limparTudo()">🗑️ Limpar Tudo</button>
       </div>
     </div>
-  </main>
+
+    <!-- NOVO CARD DE TOTAIS -->
+    <div class="card">
+      <h3>💼 Totais dos Produtos</h3>
+      <div class="valor-card">
+        <div class="box">
+          <h4>Total de Custo</h4>
+          <p id="totalCusto">R$ 0,00</p>
+        </div>
+        <div class="box">
+          <h4>Total de Valor de Venda</h4>
+          <p id="totalValor">R$ 0,00</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="main.js"></script>
+  <script>
+    function previewImagem(event) {
+      const file = event.target.files[0];
+      const preview = document.getElementById("previewFoto");
+      preview.innerHTML = "";
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  </script>
 </body>
 </html>

@@ -54,7 +54,7 @@ function atualizarProdutos() {
 }
 atualizarProdutos();
 
-// ====== CADASTRAR PRODUTO (com compressão e compatibilidade móvel) ======
+// ====== CADASTRAR PRODUTO ======
 function cadastrarProduto() {
   const nome = document.getElementById("nomeProduto").value.trim();
   const preco = parseFloat(document.getElementById("precoProduto").value);
@@ -67,7 +67,6 @@ function cadastrarProduto() {
     return;
   }
 
-  // --- Função auxiliar: comprimir imagem antes de salvar ---
   const comprimirImagem = (file, callback) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -321,10 +320,18 @@ function gerarRelatorio() {
     return a + (p ? (v.total - v.quantidade * p.custo) : 0);
   }, 0);
 
+  // 🟦 Novo cálculo: custo total dos produtos cadastrados
+  const custoTotal = produtos.reduce((a, p) => a + (p.custo * p.estoque), 0);
+
   resumo.innerHTML = `
     <p><strong>Total de Vendas:</strong> R$ ${totalVendas.toFixed(2)}</p>
     <p><strong>Lucro Estimado:</strong> R$ ${lucro.toFixed(2)}</p>
     <p><strong>Quantidade de Vendas:</strong> ${vendas.length}</p>
+    <div style="margin-top:15px; background:#1e1e1e; border:2px solid #0078d7; border-radius:10px; padding:10px;">
+      <h3 style="color:#00bfff; margin:0;">📦 Totais do Sistema</h3>
+      <p><strong>Total de Custo em Produtos:</strong> R$ ${custoTotal.toFixed(2)}</p>
+      <p><strong>Total Geral de Vendas:</strong> R$ ${totalVendas.toFixed(2)}</p>
+    </div>
   `;
 }
 gerarRelatorio();
