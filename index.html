@@ -136,7 +136,6 @@ li {
 
 <!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<!-- Script principal -->
 
 </head>
 
@@ -166,8 +165,8 @@ li {
       <input type="file" id="fotoProduto" accept="image/*" capture="environment">
       <div id="previewFoto" style="margin-top:10px;"></div>
 
-
-      <button onclick="cadastrarProduto()">➕ Adicionar Produto</button>
+      <!-- ✅ Botão com ID fixo -->
+      <button id="btnCadastrarProduto" onclick="cadastrarProduto()">➕ Adicionar Produto</button>
     </div>
 
     <div class="card">
@@ -219,6 +218,7 @@ li {
       <button class="limpar-btn" onclick="limparTudo()">🧹 Limpar Todos os Dados</button>
     </div>
   </section>
-<script defer src="main.js"></script>
+
+  <script defer src="main.js"></script>
 </body>
 </html>
