@@ -2,11 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema MJ Tecnologia 2025</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MJ Tecnologia 2025</title>
+<link rel="icon" href="logo.png">
 
 <!-- ====== ESTILO ====== -->
 <style>
@@ -136,57 +134,88 @@ li {
 }
 </style>
 
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Script principal -->
 
 </head>
+
 <body>
   <header>
-    <h1>💼 Sistema MJ Tecnologia 2025</h1>
-    <button onclick="alternarTema()">🌓 Tema</button>
+    <h1>MJ Tecnologia</h1>
+    <button class="theme-toggle" onclick="alternarTema()">🌗 Tema</button>
   </header>
 
   <nav>
-    <button onclick="mostrarAba('produtos')">📦 Produtos</button>
-    <button onclick="mostrarAba('vendas')">💰 Vendas</button>
-    <button onclick="mostrarAba('relatorio')">📊 Relatório</button>
+    <button onclick="mostrarAba('produtos')">🏠 Produtos</button>
+    <button onclick="mostrarAba('vendas')">💸 Vendas</button>
+    <button onclick="mostrarAba('relatorios')">📊 Relatórios</button>
   </nav>
 
-  <!-- ===== PRODUTOS ===== -->
+  <!-- === PRODUTOS === -->
   <section id="produtos" class="ativa">
-    <h2>Cadastro de Produtos</h2>
-    <input type="text" id="nomeProduto" placeholder="Nome do produto">
-    <input type="number" id="precoProduto" placeholder="Preço de venda">
-    <input type="number" id="custoProduto" placeholder="Custo do produto">
-    <input type="number" id="estoqueProduto" placeholder="Estoque">
-    <input type="file" id="fotoProduto" accept="image/*" capture="environment">
-    <div id="previewFoto"></div>
-    <button onclick="cadastrarProduto()">➕ Adicionar Produto</button>
-    <ul id="listaProdutos"></ul>
+    <div class="card">
+      <h2>Cadastro de Produto</h2>
+      <input type="text" id="nomeProduto" placeholder="Nome do produto">
+      <input type="number" id="precoProduto" placeholder="Preço de venda">
+      <input type="number" id="custoProduto" placeholder="Custo do produto">
+      <input type="number" id="estoqueProduto" placeholder="Estoque inicial">
+
+      <!-- ✅ Campo atualizado: agora aceita câmera e galeria -->
+      <input type="file" id="fotoProduto" accept="image/*" capture="environment">
+
+      <button onclick="cadastrarProduto()">➕ Adicionar Produto</button>
+    </div>
+
+    <div class="card">
+      <h2>Lista de Produtos</h2>
+      <ul id="listaProdutos"></ul>
+    </div>
   </section>
 
-  <!-- ===== VENDAS ===== -->
+  <!-- === VENDAS === -->
   <section id="vendas">
-    <h2>Registrar Venda</h2>
-    <select id="produtoVenda"></select>
-    <input type="number" id="qtdVenda" placeholder="Quantidade">
-    <label><input type="radio" name="tipoVenda" value="avista" checked> À vista</label>
-    <label><input type="radio" name="tipoVenda" value="prazo"> A prazo</label>
-    <input type="text" id="clienteVenda" placeholder="Cliente">
-    <input type="text" id="whatsVenda" placeholder="WhatsApp (somente números)">
-    <input type="number" id="diasPrazo" placeholder="Dias para vencimento">
-    <button onclick="registrarVenda()">💾 Registrar</button>
-    <ul id="listaVendas"></ul>
+    <div class="card">
+      <h2>Registrar Venda</h2>
+      <label>Produto:</label>
+      <select id="produtoVenda"></select>
+      <label>Quantidade:</label>
+      <input type="number" id="qtdVenda" placeholder="Quantidade vendida">
+      <label>Tipo de Venda:</label>
+      <div>
+        <label><input type="radio" name="tipoVenda" value="avista" checked> À Vista</label>
+        <label><input type="radio" name="tipoVenda" value="prazo"> A Prazo</label>
+      </div>
+      <label>Cliente:</label>
+      <input type="text" id="clienteVenda" placeholder="Nome do cliente">
+      <label>WhatsApp (somente números):</label>
+      <input type="text" id="whatsVenda" placeholder="92999998888">
+      <label>Dias para vencimento (se for a prazo):</label>
+      <input type="number" id="diasPrazo" placeholder="Ex: 7">
+      <button onclick="registrarVenda()">💾 Registrar Venda</button>
+    </div>
+
+    <div class="card">
+      <h2>Vendas Registradas</h2>
+      <ul id="listaVendas"></ul>
+    </div>
   </section>
 
-  <!-- ===== RELATÓRIO ===== -->
-  <section id="relatorio">
-    <h2>Relatório</h2>
-    <div id="resumoRelatorio"></div>
-    <button onclick="gerarRelatorio()">🔄 Atualizar</button>
-    <button onclick="exportarExcel()">📄 Exportar Excel</button>
-    <button onclick="exportarPDF()">🧾 Exportar PDF</button>
-    <button onclick="limparTudo()">🗑️ Limpar Tudo</button>
-  </section>
+  <!-- === RELATÓRIOS === -->
+  <section id="relatorios">
+    <div class="card">
+      <h2>Resumo Financeiro</h2>
+      <div id="resumoRelatorio"></div>
+      <button onclick="gerarRelatorio()">🔁 Atualizar Relatório</button>
+    </div>
 
-  <script src="main.js"></script>
+    <div class="card">
+      <h2>Exportar Dados</h2>
+      <button onclick="exportarExcel()">📊 Exportar Excel</button>
+      <button onclick="exportarPDF()">📄 Exportar PDF</button>
+      <button class="limpar-btn" onclick="limparTudo()">🧹 Limpar Todos os Dados</button>
+    </div>
+  </section>
+<script defer src="main.js"></script>
 </body>
 </html>

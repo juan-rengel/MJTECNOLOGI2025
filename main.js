@@ -54,7 +54,7 @@ function atualizarProdutos() {
 }
 atualizarProdutos();
 
-// ====== CADASTRAR PRODUTO (COMPATÍVEL COM CÂMERA MÓVEL) ======
+// ----- Cadastrar produto -----
 function cadastrarProduto() {
   const nome = document.getElementById("nomeProduto").value.trim();
   const preco = parseFloat(document.getElementById("precoProduto").value);
@@ -63,50 +63,31 @@ function cadastrarProduto() {
   const fotoInput = document.getElementById("fotoProduto");
 
   if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
-    alert("⚠️ Preencha todos os campos corretamente!");
+    alert("Preencha todos os campos corretamente!");
     return;
   }
 
-  const salvarProduto = (fotoBase64) => {
-    produtos.push({
-      nome,
-      preco,
-      custo,
-      estoque,
-      foto: fotoBase64 || null
-    });
-
+  let foto = "";
+  if (fotoInput.files.length > 0) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      foto = e.target.result;
+      produtos.push({ nome, preco, custo, estoque, foto });
+      salvarDados();
+      atualizarProdutos();
+    };
+    reader.readAsDataURL(fotoInput.files[0]);
+  } else {
+    produtos.push({ nome, preco, custo, estoque, foto });
     salvarDados();
     atualizarProdutos();
-
-    document.getElementById("nomeProduto").value = "";
-    document.getElementById("precoProduto").value = "";
-    document.getElementById("custoProduto").value = "";
-    document.getElementById("estoqueProduto").value = "";
-    fotoInput.value = "";
-    document.getElementById("previewFoto").innerHTML = "";
-
-    alert("✅ Produto cadastrado com sucesso!");
-  };
-
-  if (fotoInput.files && fotoInput.files[0]) {
-    try {
-      const file = fotoInput.files[0];
-      const reader = new FileReader();
-
-      reader.onloadend = function (e) {
-        salvarProduto(e.target.result);
-      };
-
-      // compatibilidade com câmera (Android/iOS)
-      setTimeout(() => reader.readAsDataURL(file), 100);
-    } catch (err) {
-      console.error("Erro ao ler imagem:", err);
-      salvarProduto(null);
-    }
-  } else {
-    salvarProduto(null);
   }
+
+  document.getElementById("nomeProduto").value = "";
+  document.getElementById("precoProduto").value = "";
+  document.getElementById("custoProduto").value = "";
+  document.getElementById("estoqueProduto").value = "";
+  fotoInput.value = "";
 }
 
 // ----- Editar produto -----
@@ -140,7 +121,7 @@ function salvarEdicaoProduto() {
 
   if (fotoInput.files.length > 0) {
     const reader = new FileReader();
-    reader.onloadend = function (e) {
+    reader.onload = function (e) {
       produtos[i].foto = e.target.result;
       atualizarProdutoCampos();
     };
@@ -220,6 +201,7 @@ function registrarVenda() {
   atualizarProdutos();
   atualizarVendas();
 
+  // Mensagem WhatsApp se venda a prazo
   if (tipo === "prazo" && whats) {
     const msg = `Olá ${cliente}! Sua compra de ${produto.nome} no valor de R$ ${total.toFixed(2)} vence em ${diasPrazo} dia(s).`;
     const link = `https://wa.me/55${whats}?text=${encodeURIComponent(msg)}`;
