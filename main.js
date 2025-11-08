@@ -54,7 +54,7 @@ function atualizarProdutos() {
 }
 atualizarProdutos();
 
-// ----- Cadastrar produto -----
+// ====== CADASTRAR PRODUTO (com compressão e compatibilidade móvel) ======
 function cadastrarProduto() {
   const nome = document.getElementById("nomeProduto").value.trim();
   const preco = parseFloat(document.getElementById("precoProduto").value);
@@ -63,31 +63,72 @@ function cadastrarProduto() {
   const fotoInput = document.getElementById("fotoProduto");
 
   if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
-    alert("Preencha todos os campos corretamente!");
+    alert("⚠️ Preencha todos os campos corretamente!");
     return;
   }
 
-  let foto = "";
-  if (fotoInput.files.length > 0) {
+  // --- Função auxiliar: comprimir imagem antes de salvar ---
+  const comprimirImagem = (file, callback) => {
     const reader = new FileReader();
-    reader.onload = function (e) {
-      foto = e.target.result;
-      produtos.push({ nome, preco, custo, estoque, foto });
-      salvarDados();
-      atualizarProdutos();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxSize = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL("image/jpeg", 0.8);
+        callback(compressed);
+      };
+      img.src = event.target.result;
     };
-    reader.readAsDataURL(fotoInput.files[0]);
-  } else {
-    produtos.push({ nome, preco, custo, estoque, foto });
+    reader.readAsDataURL(file);
+  };
+
+  const salvarProduto = (fotoBase64) => {
+    produtos.push({
+      nome,
+      preco,
+      custo,
+      estoque,
+      foto: fotoBase64 || null
+    });
+
     salvarDados();
     atualizarProdutos();
-  }
 
-  document.getElementById("nomeProduto").value = "";
-  document.getElementById("precoProduto").value = "";
-  document.getElementById("custoProduto").value = "";
-  document.getElementById("estoqueProduto").value = "";
-  fotoInput.value = "";
+    document.getElementById("nomeProduto").value = "";
+    document.getElementById("precoProduto").value = "";
+    document.getElementById("custoProduto").value = "";
+    document.getElementById("estoqueProduto").value = "";
+    document.getElementById("fotoProduto").value = "";
+    document.getElementById("previewFoto").innerHTML = "";
+
+    alert("✅ Produto cadastrado com sucesso!");
+  };
+
+  if (fotoInput.files && fotoInput.files[0]) {
+    comprimirImagem(fotoInput.files[0], salvarProduto);
+  } else {
+    salvarProduto(null);
+  }
 }
 
 // ----- Editar produto -----
@@ -119,22 +160,12 @@ function salvarEdicaoProduto() {
     return;
   }
 
-  if (fotoInput.files.length > 0) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      produtos[i].foto = e.target.result;
-      atualizarProdutoCampos();
-    };
-    reader.readAsDataURL(fotoInput.files[0]);
-  } else {
-    atualizarProdutoCampos();
-  }
-
-  function atualizarProdutoCampos() {
+  const atualizarProdutoCampos = (novaFoto) => {
     produtos[i].nome = nome;
     produtos[i].preco = preco;
     produtos[i].custo = custo;
     produtos[i].estoque = estoque;
+    if (novaFoto) produtos[i].foto = novaFoto;
     salvarDados();
     atualizarProdutos();
 
@@ -150,6 +181,40 @@ function salvarEdicaoProduto() {
     botao.onclick = cadastrarProduto;
 
     alert("Produto atualizado com sucesso!");
+  };
+
+  if (fotoInput.files && fotoInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxSize = 800;
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL("image/jpeg", 0.8);
+        atualizarProdutoCampos(compressed);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(fotoInput.files[0]);
+  } else {
+    atualizarProdutoCampos();
   }
 }
 
@@ -201,7 +266,6 @@ function registrarVenda() {
   atualizarProdutos();
   atualizarVendas();
 
-  // Mensagem WhatsApp se venda a prazo
   if (tipo === "prazo" && whats) {
     const msg = `Olá ${cliente}! Sua compra de ${produto.nome} no valor de R$ ${total.toFixed(2)} vence em ${diasPrazo} dia(s).`;
     const link = `https://wa.me/55${whats}?text=${encodeURIComponent(msg)}`;
@@ -241,7 +305,6 @@ function excluirVenda(i) {
     const venda = vendas[i];
     const prod = produtos.find(p => p.nome === venda.produto);
     if (prod) prod.estoque += venda.quantidade;
-
     vendas.splice(i, 1);
     salvarDados();
     atualizarVendas();
