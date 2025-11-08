@@ -1,97 +1,44 @@
 // ======== SISTEMA MJ TECNOLOGIA 2025 ========
 
+// ----- Variáveis principais -----
 let produtos = JSON.parse(localStorage.getItem("produtos")) || [];
 let vendas = JSON.parse(localStorage.getItem("vendas")) || [];
 
-document.addEventListener("DOMContentLoaded", () => {
-  try {
-    // aplica tema salvo
-    if (localStorage.getItem("temaClaro") === "true") {
-      document.body.classList.add("light");
-    }
-
-    // inicializa botões/handlers
-    const btnCadastrar = document.getElementById("btnCadastrarProduto");
-    if (btnCadastrar) {
-      // garante que o onclick exista (compatível com index.html que tem onclick inline)
-      btnCadastrar.onclick = cadastrarProduto;
-    } else {
-      console.warn("botão #btnCadastrarProduto não encontrado no DOM.");
-    }
-
-    const fotoInput = document.getElementById("fotoProduto");
-    if (fotoInput) {
-      fotoInput.addEventListener("change", mostrarPreviewFoto);
-    }
-
-    // render inicial
-    atualizarProdutos();
-    atualizarVendas();
-    gerarRelatorio();
-
-    console.log("MJ Tecnologia: script inicializado com sucesso.");
-  } catch (err) {
-    console.error("Erro ao inicializar script:", err);
-    alert("Ocorreu um erro ao iniciar o sistema. Abra o console para mais detalhes.");
-  }
-});
-
-// ----- Tema -----
+// ----- Alternar tema claro/escuro -----
 function alternarTema() {
   document.body.classList.toggle("light");
   localStorage.setItem("temaClaro", document.body.classList.contains("light"));
 }
-
-// ----- Abas -----
-function mostrarAba(id) {
-  document.querySelectorAll("section").forEach(sec => sec.classList.remove("ativa"));
-  const alvo = document.getElementById(id);
-  if (alvo) alvo.classList.add("ativa");
+if (localStorage.getItem("temaClaro") === "true") {
+  document.body.classList.add("light");
 }
 
-// ----- Salvar localStorage -----
+// ----- Trocar abas internas -----
+function mostrarAba(id) {
+  document.querySelectorAll("section").forEach(sec => sec.classList.remove("ativa"));
+  document.getElementById(id).classList.add("ativa");
+}
+
+// ----- Salvar dados -----
 function salvarDados() {
   localStorage.setItem("produtos", JSON.stringify(produtos));
   localStorage.setItem("vendas", JSON.stringify(vendas));
 }
 
-// ----- Preview foto -----
-function mostrarPreviewFoto() {
-  const preview = document.getElementById("previewFoto");
-  const input = document.getElementById("fotoProduto");
-  preview.innerHTML = "";
-  if (input && input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = document.createElement("img");
-      img.src = e.target.result;
-      img.style.maxWidth = "120px";
-      img.style.borderRadius = "6px";
-      preview.appendChild(img);
-    };
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-
-// ----- Atualizar lista de produtos -----
+// ----- Atualizar listas -----
 function atualizarProdutos() {
   const lista = document.getElementById("listaProdutos");
   const select = document.getElementById("produtoVenda");
-  if (!lista || !select) {
-    console.warn("Elementos de lista-produtos ou produtoVenda não encontrados.");
-    return;
-  }
   lista.innerHTML = "";
   select.innerHTML = "<option value=''>Selecione</option>";
 
   produtos.forEach((p, i) => {
     const li = document.createElement("li");
-    const estoqueInt = parseInt(p.estoque) || 0;
-    let estoqueClass = estoqueInt < 3 ? "style='color:red; font-weight:bold;'" : "";
+    let estoqueClass = parseInt(p.estoque) < 3 ? "style='color:red; font-weight:bold;'" : "";
     li.innerHTML = `
       <strong>${p.nome}</strong><br>
-      Preço: R$ ${Number(p.preco).toFixed(2)} | Custo: R$ ${Number(p.custo).toFixed(2)} |
-      <span ${estoqueClass}>Estoque: ${estoqueInt}</span>
+      Preço: R$ ${p.preco.toFixed(2)} | Custo: R$ ${p.custo.toFixed(2)} |
+      <span ${estoqueClass}>Estoque: ${p.estoque}</span>
       ${p.foto ? `<br><img src="${p.foto}" width="60">` : ""}
       <br>
       <button class="excluir-btn" onclick="excluirProduto(${i})">Excluir</button>
@@ -105,131 +52,123 @@ function atualizarProdutos() {
     select.appendChild(opt);
   });
 }
+atualizarProdutos();
 
-// ----- Cadastrar produto -----
+// ====== CADASTRAR PRODUTO (COMPATÍVEL COM CÂMERA MÓVEL) ======
 function cadastrarProduto() {
-  try {
-    const nome = document.getElementById("nomeProduto").value.trim();
-    const preco = parseFloat(document.getElementById("precoProduto").value);
-    const custo = parseFloat(document.getElementById("custoProduto").value);
-    const estoque = parseInt(document.getElementById("estoqueProduto").value);
-    const fotoInput = document.getElementById("fotoProduto");
+  const nome = document.getElementById("nomeProduto").value.trim();
+  const preco = parseFloat(document.getElementById("precoProduto").value);
+  const custo = parseFloat(document.getElementById("custoProduto").value);
+  const estoque = parseInt(document.getElementById("estoqueProduto").value);
+  const fotoInput = document.getElementById("fotoProduto");
 
-    if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
-      alert("⚠️ Preencha todos os campos corretamente!");
-      return;
-    }
+  if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
+    alert("⚠️ Preencha todos os campos corretamente!");
+    return;
+  }
 
-    const salvarProduto = (fotoBase64) => {
-      produtos.push({
-        nome,
-        preco,
-        custo,
-        estoque,
-        foto: fotoBase64 || null
-      });
-      salvarDados();
-      atualizarProdutos();
-      limparCamposProduto();
-      alert("✅ Produto cadastrado com sucesso!");
-    };
+  const salvarProduto = (fotoBase64) => {
+    produtos.push({
+      nome,
+      preco,
+      custo,
+      estoque,
+      foto: fotoBase64 || null
+    });
 
-    if (fotoInput && fotoInput.files && fotoInput.files[0]) {
-      const leitor = new FileReader();
-      leitor.onload = (e) => salvarProduto(e.target.result);
-      leitor.readAsDataURL(fotoInput.files[0]);
-    } else {
+    salvarDados();
+    atualizarProdutos();
+
+    document.getElementById("nomeProduto").value = "";
+    document.getElementById("precoProduto").value = "";
+    document.getElementById("custoProduto").value = "";
+    document.getElementById("estoqueProduto").value = "";
+    fotoInput.value = "";
+    document.getElementById("previewFoto").innerHTML = "";
+
+    alert("✅ Produto cadastrado com sucesso!");
+  };
+
+  if (fotoInput.files && fotoInput.files[0]) {
+    try {
+      const file = fotoInput.files[0];
+      const reader = new FileReader();
+
+      reader.onloadend = function (e) {
+        salvarProduto(e.target.result);
+      };
+
+      // compatibilidade com câmera (Android/iOS)
+      setTimeout(() => reader.readAsDataURL(file), 100);
+    } catch (err) {
+      console.error("Erro ao ler imagem:", err);
       salvarProduto(null);
     }
-  } catch (err) {
-    console.error("Erro em cadastrarProduto:", err);
-    alert("Erro ao cadastrar produto. Veja o console para detalhes.");
-  }
-}
-
-// ----- Limpar campos -----
-function limparCamposProduto() {
-  document.getElementById("nomeProduto").value = "";
-  document.getElementById("precoProduto").value = "";
-  document.getElementById("custoProduto").value = "";
-  document.getElementById("estoqueProduto").value = "";
-  const fotoInput = document.getElementById("fotoProduto");
-  if (fotoInput) {
-    fotoInput.value = "";
-    delete fotoInput.dataset.editIndex;
-  }
-  const preview = document.getElementById("previewFoto");
-  if (preview) preview.innerHTML = "";
-
-  const botao = document.getElementById("btnCadastrarProduto");
-  if (botao) {
-    botao.textContent = "➕ Adicionar Produto";
-    botao.onclick = cadastrarProduto;
+  } else {
+    salvarProduto(null);
   }
 }
 
 // ----- Editar produto -----
 function editarProduto(i) {
   const p = produtos[i];
-  if (!p) {
-    alert("Produto não encontrado para edição.");
-    return;
-  }
   document.getElementById("nomeProduto").value = p.nome;
   document.getElementById("precoProduto").value = p.preco;
   document.getElementById("custoProduto").value = p.custo;
   document.getElementById("estoqueProduto").value = p.estoque;
+  document.getElementById("fotoProduto").dataset.editIndex = i;
 
-  const fotoInput = document.getElementById("fotoProduto");
-  if (fotoInput) fotoInput.dataset.editIndex = i;
-
-  const botao = document.getElementById("btnCadastrarProduto");
-  if (botao) {
-    botao.textContent = "💾 Salvar Alterações";
-    botao.onclick = () => salvarEdicaoProduto(i);
-  } else {
-    alert("Botão de cadastro não encontrado.");
-  }
+  const botao = document.querySelector("#produtos button[onclick='cadastrarProduto()']");
+  botao.textContent = "💾 Salvar Alterações";
+  botao.onclick = salvarEdicaoProduto;
 }
 
-// ----- Salvar edição -----
-function salvarEdicaoProduto(i) {
-  try {
-    const nome = document.getElementById("nomeProduto").value.trim();
-    const preco = parseFloat(document.getElementById("precoProduto").value);
-    const custo = parseFloat(document.getElementById("custoProduto").value);
-    const estoque = parseInt(document.getElementById("estoqueProduto").value);
-    const fotoInput = document.getElementById("fotoProduto");
+function salvarEdicaoProduto() {
+  const i = document.getElementById("fotoProduto").dataset.editIndex;
+  if (i === undefined) return;
 
-    if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
-      alert("⚠️ Preencha todos os campos corretamente!");
-      return;
-    }
+  const nome = document.getElementById("nomeProduto").value.trim();
+  const preco = parseFloat(document.getElementById("precoProduto").value);
+  const custo = parseFloat(document.getElementById("custoProduto").value);
+  const estoque = parseInt(document.getElementById("estoqueProduto").value);
+  const fotoInput = document.getElementById("fotoProduto");
 
-    const aplicarAtualizacao = (fotoBase64) => {
-      produtos[i] = {
-        nome,
-        preco,
-        custo,
-        estoque,
-        foto: fotoBase64 || (produtos[i] ? produtos[i].foto : null)
-      };
-      salvarDados();
-      atualizarProdutos();
-      limparCamposProduto();
-      alert("✅ Produto atualizado com sucesso!");
+  if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
+    alert("Preencha todos os campos corretamente!");
+    return;
+  }
+
+  if (fotoInput.files.length > 0) {
+    const reader = new FileReader();
+    reader.onloadend = function (e) {
+      produtos[i].foto = e.target.result;
+      atualizarProdutoCampos();
     };
+    reader.readAsDataURL(fotoInput.files[0]);
+  } else {
+    atualizarProdutoCampos();
+  }
 
-    if (fotoInput && fotoInput.files && fotoInput.files.length > 0) {
-      const leitor = new FileReader();
-      leitor.onload = (e) => aplicarAtualizacao(e.target.result);
-      leitor.readAsDataURL(fotoInput.files[0]);
-    } else {
-      aplicarAtualizacao(produtos[i] ? produtos[i].foto : null);
-    }
-  } catch (err) {
-    console.error("Erro em salvarEdicaoProduto:", err);
-    alert("Erro ao salvar edição. Veja o console para detalhes.");
+  function atualizarProdutoCampos() {
+    produtos[i].nome = nome;
+    produtos[i].preco = preco;
+    produtos[i].custo = custo;
+    produtos[i].estoque = estoque;
+    salvarDados();
+    atualizarProdutos();
+
+    document.getElementById("nomeProduto").value = "";
+    document.getElementById("precoProduto").value = "";
+    document.getElementById("custoProduto").value = "";
+    document.getElementById("estoqueProduto").value = "";
+    fotoInput.value = "";
+    delete fotoInput.dataset.editIndex;
+
+    const botao = document.querySelector("#produtos button");
+    botao.textContent = "➕ Adicionar Produto";
+    botao.onclick = cadastrarProduto;
+
+    alert("Produto atualizado com sucesso!");
   }
 }
 
@@ -244,70 +183,60 @@ function excluirProduto(i) {
 
 // ----- Registrar venda -----
 function registrarVenda() {
-  try {
-    const produtoIndex = document.getElementById("produtoVenda").value;
-    const qtd = parseInt(document.getElementById("qtdVenda").value);
-    const tipo = document.querySelector('input[name="tipoVenda"]:checked').value;
-    const cliente = document.getElementById("clienteVenda").value.trim();
-    const whats = document.getElementById("whatsVenda").value.trim();
-    const diasPrazo = parseInt(document.getElementById("diasPrazo").value) || 0;
+  const produtoIndex = document.getElementById("produtoVenda").value;
+  const qtd = parseInt(document.getElementById("qtdVenda").value);
+  const tipo = document.querySelector('input[name="tipoVenda"]:checked').value;
+  const cliente = document.getElementById("clienteVenda").value.trim();
+  const whats = document.getElementById("whatsVenda").value.trim();
+  const diasPrazo = parseInt(document.getElementById("diasPrazo").value) || 0;
 
-    if (produtoIndex === "" || isNaN(qtd) || !cliente) {
-      alert("Preencha todos os campos obrigatórios!");
-      return;
-    }
-
-    const produto = produtos[produtoIndex];
-    if (!produto) {
-      alert("Produto inválido.");
-      return;
-    }
-    if (produto.estoque < qtd) {
-      alert("Estoque insuficiente!");
-      return;
-    }
-
-    const total = produto.preco * qtd;
-    const vencimento = tipo === "prazo" ? new Date(Date.now() + diasPrazo * 86400000) : null;
-
-    vendas.push({
-      produto: produto.nome,
-      quantidade: qtd,
-      total,
-      tipo,
-      cliente,
-      whats,
-      vencimento: vencimento ? vencimento.toISOString() : null,
-      pago: tipo === "avista"
-    });
-
-    produto.estoque -= qtd;
-    salvarDados();
-    atualizarProdutos();
-    atualizarVendas();
-
-    if (tipo === "prazo" && whats) {
-      const msg = `Olá ${cliente}! Sua compra de ${produto.nome} no valor de R$ ${total.toFixed(2)} vence em ${diasPrazo} dia(s).`;
-      const link = `https://wa.me/55${whats}?text=${encodeURIComponent(msg)}`;
-      window.open(link, "_blank");
-    }
-
-    alert("Venda registrada com sucesso!");
-    document.getElementById("produtoVenda").value = "";
-    document.getElementById("qtdVenda").value = "";
-    document.getElementById("clienteVenda").value = "";
-    document.getElementById("whatsVenda").value = "";
-    document.getElementById("diasPrazo").value = "";
-  } catch (err) {
-    console.error("Erro em registrarVenda:", err);
-    alert("Erro ao registrar venda. Veja o console para detalhes.");
+  if (produtoIndex === "" || isNaN(qtd) || !cliente) {
+    alert("Preencha todos os campos obrigatórios!");
+    return;
   }
+
+  const produto = produtos[produtoIndex];
+  if (produto.estoque < qtd) {
+    alert("Estoque insuficiente!");
+    return;
+  }
+
+  const total = produto.preco * qtd;
+  const vencimento = tipo === "prazo" ? new Date(Date.now() + diasPrazo * 86400000) : null;
+
+  vendas.push({
+    produto: produto.nome,
+    quantidade: qtd,
+    total,
+    tipo,
+    cliente,
+    whats,
+    vencimento: vencimento ? vencimento.toISOString() : null,
+    pago: tipo === "avista"
+  });
+
+  produto.estoque -= qtd;
+  salvarDados();
+  atualizarProdutos();
+  atualizarVendas();
+
+  if (tipo === "prazo" && whats) {
+    const msg = `Olá ${cliente}! Sua compra de ${produto.nome} no valor de R$ ${total.toFixed(2)} vence em ${diasPrazo} dia(s).`;
+    const link = `https://wa.me/55${whats}?text=${encodeURIComponent(msg)}`;
+    window.open(link, "_blank");
+  }
+
+  alert("Venda registrada com sucesso!");
+  document.getElementById("produtoVenda").value = "";
+  document.getElementById("qtdVenda").value = "";
+  document.getElementById("clienteVenda").value = "";
+  document.getElementById("whatsVenda").value = "";
+  document.getElementById("diasPrazo").value = "";
 }
 
 // ----- Atualizar lista de vendas -----
 function atualizarVendas() {
   const lista = document.getElementById("listaVendas");
-  if (!lista) return;
   lista.innerHTML = "";
 
   vendas.forEach((v, i) => {
@@ -322,6 +251,7 @@ function atualizarVendas() {
     lista.appendChild(li);
   });
 }
+atualizarVendas();
 
 // ----- Excluir venda -----
 function excluirVenda(i) {
@@ -340,7 +270,6 @@ function excluirVenda(i) {
 // ----- Relatório -----
 function gerarRelatorio() {
   const resumo = document.getElementById("resumoRelatorio");
-  if (!resumo) return;
   const totalVendas = vendas.reduce((a, v) => a + v.total, 0);
   const lucro = vendas.reduce((a, v) => {
     const p = produtos.find(p => p.nome === v.produto);
@@ -353,6 +282,7 @@ function gerarRelatorio() {
     <p><strong>Quantidade de Vendas:</strong> ${vendas.length}</p>
   `;
 }
+gerarRelatorio();
 
 // ----- Exportar Excel -----
 function exportarExcel() {
@@ -396,7 +326,7 @@ function limparTudo() {
   }
 }
 
-// ----- Lembrete automático WhatsApp (checa a cada minuto) -----
+// ----- Lembrete automático WhatsApp -----
 setInterval(() => {
   const hoje = new Date().toISOString().split("T")[0];
   vendas.forEach(v => {
