@@ -1,20 +1,20 @@
 {
-  "name": "MJ Tecnologi 2025",
-  "short_name": "MJ Tecnologi",
+  "name": "MJ Controll",
+  "short_name": "MJ Controll",
+  "description": "Sistema MJ Controll 2025 — controle de produtos e vendas offline",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0a0f1f",
-  "theme_color": "#d4af37",
+  "background_color": "#000000",
+  "theme_color": "#121212",
   "orientation": "portrait",
-  "description": "Controle de vendas, estoque e lucros - MJ Tecnologi 2025",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

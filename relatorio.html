@@ -6,20 +6,131 @@
   <title>Relatórios - MJ Tecnologia 2025</title>
   <link rel="icon" href="logo.png" />
   <style>
-    :root{ --bg:#0a0f1f; --card:#141c2f; --text:#e2e8f0; --accent:#007bff }
-    body.light{ --bg:#f5f6fa; --card:#fff; --text:#111 }
-    body{ font-family:Poppins, sans-serif; background:var(--bg); color:var(--text); margin:0; transition:0.3s }
-    header{ background:var(--card); padding:12px 18px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.2) }
-    header h1{ color:var(--accent); margin:0 }
-    .theme-toggle{ background:var(--accent); color:#fff; border-radius:8px; padding:8px 12px; border:none; cursor:pointer }
-    main{ max-width:1000px; margin:20px auto; padding:0 16px }
-    .card{ background:var(--card); border-radius:12px; padding:18px; margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.2) }
-    h2{ color:var(--accent); margin-top:0 }
-    button{ background:var(--accent); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; margin-right:8px }
-    ul{ list-style:none; padding:0; margin:0 }
-    li{ background:rgba(255,255,255,0.03); padding:10px; border-radius:8px; margin-bottom:8px }
-    .menu{ display:flex; gap:10px; margin-bottom:12px }
-    .menu a{ flex:1; text-align:center; background:var(--accent); color:#fff; padding:10px; border-radius:10px; text-decoration:none }
+   /* ====== VARIÁVEIS DE TEMA ====== */
+/* ====== VARIÁVEIS DE TEMA ====== */
+:root {
+  --bg: #0a0f1f;
+  --card: #141c2f;
+  --text: #e2e8f0;
+  --accent: #007bff;
+}
+
+/* ====== TEMA CLARO ====== */
+body.light {
+  --bg: #f5f6fa;
+  --card: #ffffff;
+  --text: #111111;
+}
+
+/* ====== ESTILOS GERAIS ====== */
+body {
+  font-family: "Poppins", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ====== CABEÇALHO ====== */
+header {
+  background: var(--card);
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+header h1 {
+  color: var(--accent);
+  margin: 0;
+}
+
+/* ====== BOTÃO TEMA ====== */
+.theme-toggle {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+}
+
+/* ====== CONTEÚDO PRINCIPAL ====== */
+main {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+
+/* ====== CARTÕES ====== */
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ====== TÍTULOS ====== */
+h2 {
+  color: var(--accent);
+  margin-top: 0;
+}
+
+/* ====== BOTÕES ====== */
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: 0.3s;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+/* ====== LISTAS ====== */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+/* ====== MENU ====== */
+.menu {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.menu a {
+  flex: 1;
+  text-align: center;
+  background: var(--accent);
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.menu a:hover {
+  opacity: 0.9;
+}
+
+
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
