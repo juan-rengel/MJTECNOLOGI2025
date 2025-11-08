@@ -78,14 +78,7 @@ function cadastrarProduto() {
 
     salvarDados();
     atualizarProdutos();
-
-    document.getElementById("nomeProduto").value = "";
-    document.getElementById("precoProduto").value = "";
-    document.getElementById("custoProduto").value = "";
-    document.getElementById("estoqueProduto").value = "";
-    document.getElementById("fotoProduto").value = "";
-    document.getElementById("previewFoto").innerHTML = "";
-
+    limparCamposProduto();
     alert("✅ Produto cadastrado com sucesso!");
   };
 
@@ -98,6 +91,22 @@ function cadastrarProduto() {
   }
 }
 
+// ----- Função para limpar campos -----
+function limparCamposProduto() {
+  document.getElementById("nomeProduto").value = "";
+  document.getElementById("precoProduto").value = "";
+  document.getElementById("custoProduto").value = "";
+  document.getElementById("estoqueProduto").value = "";
+  document.getElementById("fotoProduto").value = "";
+  document.getElementById("previewFoto").innerHTML = "";
+
+  const botao = document.querySelector("#btnCadastrarProduto");
+  if (botao) {
+    botao.textContent = "➕ Adicionar Produto";
+    botao.onclick = cadastrarProduto;
+  }
+}
+
 // ----- Editar produto -----
 function editarProduto(i) {
   const p = produtos[i];
@@ -107,15 +116,13 @@ function editarProduto(i) {
   document.getElementById("estoqueProduto").value = p.estoque;
   document.getElementById("fotoProduto").dataset.editIndex = i;
 
-  const botao = document.querySelector("#produtos button[onclick='cadastrarProduto()']");
+  const botao = document.querySelector("#btnCadastrarProduto");
   botao.textContent = "💾 Salvar Alterações";
-  botao.onclick = salvarEdicaoProduto;
+  botao.onclick = () => salvarEdicaoProduto(i);
 }
 
-function salvarEdicaoProduto() {
-  const i = document.getElementById("fotoProduto").dataset.editIndex;
-  if (i === undefined) return;
-
+// ----- Salvar edição -----
+function salvarEdicaoProduto(i) {
   const nome = document.getElementById("nomeProduto").value.trim();
   const preco = parseFloat(document.getElementById("precoProduto").value);
   const custo = parseFloat(document.getElementById("custoProduto").value);
@@ -123,41 +130,31 @@ function salvarEdicaoProduto() {
   const fotoInput = document.getElementById("fotoProduto");
 
   if (!nome || isNaN(preco) || isNaN(custo) || isNaN(estoque)) {
-    alert("Preencha todos os campos corretamente!");
+    alert("⚠️ Preencha todos os campos corretamente!");
     return;
   }
 
-  if (fotoInput.files.length > 0) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      produtos[i].foto = e.target.result;
-      atualizarProdutoCampos();
+  const atualizarCampos = (fotoBase64) => {
+    produtos[i] = {
+      nome,
+      preco,
+      custo,
+      estoque,
+      foto: fotoBase64 || produtos[i].foto
     };
-    reader.readAsDataURL(fotoInput.files[0]);
-  } else {
-    atualizarProdutoCampos();
-  }
 
-  function atualizarProdutoCampos() {
-    produtos[i].nome = nome;
-    produtos[i].preco = preco;
-    produtos[i].custo = custo;
-    produtos[i].estoque = estoque;
     salvarDados();
     atualizarProdutos();
+    limparCamposProduto();
+    alert("✅ Produto atualizado com sucesso!");
+  };
 
-    document.getElementById("nomeProduto").value = "";
-    document.getElementById("precoProduto").value = "";
-    document.getElementById("custoProduto").value = "";
-    document.getElementById("estoqueProduto").value = "";
-    fotoInput.value = "";
-    delete fotoInput.dataset.editIndex;
-
-    const botao = document.querySelector("#produtos button");
-    botao.textContent = "➕ Adicionar Produto";
-    botao.onclick = cadastrarProduto;
-
-    alert("Produto atualizado com sucesso!");
+  if (fotoInput.files.length > 0) {
+    const leitor = new FileReader();
+    leitor.onload = (e) => atualizarCampos(e.target.result);
+    leitor.readAsDataURL(fotoInput.files[0]);
+  } else {
+    atualizarCampos(produtos[i].foto);
   }
 }
 
